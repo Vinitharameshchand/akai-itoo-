@@ -422,7 +422,7 @@ function LandingPage() {
                         }}
                     >
                         <motion.button
-                            onClick={() => navigate('/signup')}
+                            onClick={() => { }}
                             whileHover={{ scale: 1.03, boxShadow: '0 15px 40px rgba(255, 155, 155, 0.4)' }}
                             whileTap={{ scale: 0.97 }}
                             style={{
@@ -433,7 +433,7 @@ function LandingPage() {
                                 color: 'white',
                                 fontSize: '1.1rem',
                                 fontWeight: 600,
-                                cursor: 'pointer',
+                                cursor: 'default',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -443,12 +443,12 @@ function LandingPage() {
                             }}
                         >
                             <Heart size={22} fill="white" />
-                            Start Your Journey
+                            Join Soon
                             <ArrowRight size={20} />
                         </motion.button>
 
                         <motion.button
-                            onClick={() => navigate('/login')}
+                            onClick={() => { }}
                             whileHover={{ scale: 1.02, background: 'rgba(255,255,255,0.9)' }}
                             whileTap={{ scale: 0.98 }}
                             style={{
@@ -460,10 +460,10 @@ function LandingPage() {
                                 color: '#4A3A3A',
                                 fontSize: '1rem',
                                 fontWeight: 500,
-                                cursor: 'pointer'
+                                cursor: 'default'
                             }}
                         >
-                            Sign In
+                            Coming Soon
                         </motion.button>
                     </motion.div>
 
@@ -841,10 +841,10 @@ function LandingPage() {
                         marginBottom: '2rem',
                         fontSize: isDesktop ? '1.15rem' : '1rem'
                     }}>
-                        Create your private space today — it's free to start
+                        Be the first to join our private space — launching soon
                     </p>
                     <motion.button
-                        onClick={() => navigate('/signup')}
+                        onClick={() => { }}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         style={{
@@ -855,13 +855,13 @@ function LandingPage() {
                             color: '#FF9B9B',
                             fontSize: isDesktop ? '1.15rem' : '1.1rem',
                             fontWeight: 600,
-                            cursor: 'pointer',
+                            cursor: 'default',
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: '10px'
                         }}
                     >
-                        Get Started Free
+                        Join Soon
                         <ArrowRight size={20} />
                     </motion.button>
                 </motion.div>
