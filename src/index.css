@@ -1,0 +1,295 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+
+/* Light Theme (Soft Romance) */
+:root {
+  --bg-primary: #FDECEC;
+  --bg-secondary: #F5D5D5;
+  --glass-bg: rgba(255, 255, 255, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 8px 32px 0 rgba(135, 31, 58, 0.1);
+  --accent-coral: #FF9B9B;
+  --text-primary: #4A3A3A;
+  --text-secondary: #7A6A6A;
+  --font-serif: 'Playfair Display', serif;
+  --font-sans: 'Outfit', sans-serif;
+  --primary-gradient: linear-gradient(135deg, #FF9B9B 0%, #FFB4B4 100%);
+  --soft-glow: 0 0 20px rgba(255, 155, 155, 0.4);
+  --bg-gradient: linear-gradient(rgba(253, 236, 236, 0.85), rgba(245, 213, 213, 0.85));
+  --texture-opacity: 0.15;
+  --card-bg: rgba(255, 255, 255, 0.6);
+}
+
+/* Dark Theme (Midnight Romance) */
+[data-theme="dark"] {
+  --bg-primary: #1a0e1a;
+  --bg-secondary: #2d1b2d;
+  --glass-bg: rgba(45, 27, 45, 0.6);
+  --glass-border: rgba(255, 155, 155, 0.2);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  --accent-coral: #FF9B9B;
+  --text-primary: #f5e6f5;
+  --text-secondary: #c4a4c4;
+  --primary-gradient: linear-gradient(135deg, #FF9B9B 0%, #c77dff 100%);
+  --soft-glow: 0 0 25px rgba(255, 155, 155, 0.5);
+  --bg-gradient: linear-gradient(rgba(26, 14, 26, 0.95), rgba(45, 27, 45, 0.95));
+  --texture-opacity: 0.05;
+  --card-bg: rgba(45, 27, 45, 0.7);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-image: var(--bg-gradient), url('/assets/backgrounds/main-bg.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+  opacity: var(--texture-opacity);
+  pointer-events: none;
+  z-index: 1000;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  box-shadow: var(--glass-shadow);
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 12px 40px 0 rgba(135, 31, 58, 0.15);
+}
+
+.btn-primary {
+  background: var(--primary-gradient);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 30px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: var(--soft-glow);
+}
+
+.btn-primary:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(255, 155, 155, 0.6);
+}
+
+.btn-secondary {
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s ease forwards;
+}
+
+.stagger-1 {
+  animation-delay: 0.1s;
+}
+
+.stagger-2 {
+  animation-delay: 0.2s;
+}
+
+.stagger-3 {
+  animation-delay: 0.3s;
+}
+
+.illustration-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.sparkle {
+  position: absolute;
+  pointer-events: none;
+  background: white;
+  border-radius: 50%;
+  filter: blur(1px);
+  animation: twinkle 3s infinite;
+}
+
+@keyframes twinkle {
+
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+}
+
+.vibe-input {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 15px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.5);
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.vibe-input:focus {
+  border-color: var(--accent-coral);
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 15px rgba(255, 155, 155, 0.2);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 155, 155, 0.3);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 155, 155, 0.5);
+}
+
+.app-container {
+  max-width: 600px;
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+}
+
+.puuung-art {
+  filter: sepia(0.2) contrast(0.9) brightness(1.05);
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.hero-image {
+  max-width: 100%;
+  border-radius: 40px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  filter: sepia(0.1);
+}
+
+.night-theme {
+  background-image: linear-gradient(rgba(10, 10, 30, 0.8), rgba(20, 20, 40, 0.8)), url('/assets/backgrounds/night-bg.png') !important;
+  color: #EEE !important;
+}
+
+.night-theme .glass-card {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #EEE;
+}
+
+.night-theme p,
+.night-theme h1,
+.night-theme h2,
+.night-theme h3 {
+  color: #EEE !important;
+}
+
+.night-theme .btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #EEE;
+}
+
+@keyframes ritual-pop {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1) translateY(-100px);
+    opacity: 0;
+  }
+}
