@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Heart, Handshake, Disc, ArrowRight, Sparkles, MessageCircle, Star, Moon, Play, Shield, Zap, Camera, Music, Gift, Check } from 'lucide-react'
+import { Heart, Handshake, Disc, ArrowRight, Sparkles, MessageCircle, Star, Moon, Play, Shield, Zap, Camera, Music, Gift, Check, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 import '../App.css'
 
 // Import assets - using existing background images
@@ -305,11 +306,204 @@ const BenefitCard = ({ icon: Icon, title, items }) => (
     </motion.div>
 );
 
+const WaitlistModal = ({ isOpen, onClose, isDesktop }) => {
+    const [formData, setFormData] = useState({ name: '', email: '' });
+    const [status, setStatus] = useState({ type: '', message: '' });
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setStatus({ type: '', message: '' });
+
+        try {
+            const response = await axios.post('http://localhost:5003/api/waitlist', formData);
+            if (response.data.success) {
+                setStatus({ type: 'success', message: 'You have been added to the waitlist! 💕' });
+                setTimeout(() => {
+                    onClose();
+                    setFormData({ name: '', email: '' });
+                    setStatus({ type: '', message: '' });
+                }, 3000);
+            }
+        } catch (error) {
+            setStatus({
+                type: 'error',
+                message: error.response?.data?.message || 'Something went wrong. Please try again.'
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <AnimatePresence>
+            {isOpen && (
+                <div style={{
+                    position: 'fixed',
+                    inset: 0,
+                    zIndex: 1000,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '1.5rem'
+                }}>
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={onClose}
+                        style={{
+                            position: 'absolute',
+                            inset: 0,
+                            background: 'rgba(0,0,0,0.4)',
+                            backdropFilter: 'blur(8px)'
+                        }}
+                    />
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                        style={{
+                            position: 'relative',
+                            background: 'white',
+                            borderRadius: '32px',
+                            width: '100%',
+                            maxWidth: '450px',
+                            padding: isDesktop ? '3rem' : '2rem',
+                            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.15)',
+                            zIndex: 1001
+                        }}
+                    >
+                        <button
+                            onClick={onClose}
+                            style={{
+                                position: 'absolute',
+                                top: '1.5rem',
+                                right: '1.5rem',
+                                border: 'none',
+                                background: 'rgba(0,0,0,0.05)',
+                                borderRadius: '50%',
+                                padding: '8px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            <X size={20} color="#666" />
+                        </button>
+
+                        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                            <div style={{
+                                width: '64px',
+                                height: '64px',
+                                borderRadius: '20px',
+                                background: 'linear-gradient(135deg, #FF9B9B, #FF7B7B)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                margin: '0 auto 1.5rem',
+                                boxShadow: '0 10px 20px rgba(255,155,155,0.3)'
+                            }}>
+                                <Heart size={32} color="white" fill="white" />
+                            </div>
+                            <h2 style={{ fontSize: '1.75rem', color: '#4A3A3A', marginBottom: '0.5rem', fontFamily: 'var(--font-serif)' }}>Join the Waitlist</h2>
+                            <p style={{ color: '#7A6A6A' }}>Be the first to know when we launch.</p>
+                        </div>
+
+                        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <label style={{ fontSize: '0.9rem', color: '#4A3A3A', fontWeight: 500, marginLeft: '4px' }}>Full Name</label>
+                                <input
+                                    required
+                                    type="text"
+                                    placeholder="Enter your name"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                    style={{
+                                        padding: '1rem 1.25rem',
+                                        borderRadius: '16px',
+                                        border: '1.5px solid #EEE',
+                                        outline: 'none',
+                                        fontSize: '1rem',
+                                        transition: 'all 0.3s ease'
+                                    }}
+                                />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <label style={{ fontSize: '0.9rem', color: '#4A3A3A', fontWeight: 500, marginLeft: '4px' }}>Email Address</label>
+                                <input
+                                    required
+                                    type="email"
+                                    placeholder="Enter your email"
+                                    value={formData.email}
+                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                    style={{
+                                        padding: '1rem 1.25rem',
+                                        borderRadius: '16px',
+                                        border: '1.5px solid #EEE',
+                                        outline: 'none',
+                                        fontSize: '1rem',
+                                        transition: 'all 0.3s ease'
+                                    }}
+                                />
+                            </div>
+
+                            {status.message && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    style={{
+                                        padding: '0.75rem',
+                                        borderRadius: '12px',
+                                        fontSize: '0.9rem',
+                                        textAlign: 'center',
+                                        background: status.type === 'success' ? '#ECFDF5' : '#FEF2F2',
+                                        color: status.type === 'success' ? '#059669' : '#DC2626',
+                                        border: `1px solid ${status.type === 'success' ? '#A7F3D0' : '#FECACA'}`
+                                    }}
+                                >
+                                    {status.message}
+                                </motion.div>
+                            )}
+
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                disabled={loading}
+                                type="submit"
+                                style={{
+                                    marginTop: '1rem',
+                                    padding: '1.1rem',
+                                    borderRadius: '16px',
+                                    border: 'none',
+                                    background: 'linear-gradient(135deg, #FF9B9B, #FF7B7B)',
+                                    color: 'white',
+                                    fontSize: '1.1rem',
+                                    fontWeight: 600,
+                                    cursor: loading ? 'not-allowed' : 'pointer',
+                                    boxShadow: '0 10px 20px rgba(255,155,155,0.3)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '10px'
+                                }}
+                            >
+                                {loading ? 'Joining...' : 'Get Early Access'}
+                                {!loading && <ArrowRight size={20} />}
+                            </motion.button>
+                        </form>
+                    </motion.div>
+                </div>
+            )}
+        </AnimatePresence>
+    );
+};
+
 function LandingPage() {
     const navigate = useNavigate();
     const { width } = useWindowSize();
     const isDesktop = width >= 768;
     const isLargeDesktop = width >= 1200;
+    const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
 
     return (
         <motion.div
@@ -422,7 +616,7 @@ function LandingPage() {
                         }}
                     >
                         <motion.button
-                            onClick={() => { }}
+                            onClick={() => setIsWaitlistOpen(true)}
                             whileHover={{ scale: 1.03, boxShadow: '0 15px 40px rgba(255, 155, 155, 0.4)' }}
                             whileTap={{ scale: 0.97 }}
                             style={{
@@ -433,7 +627,7 @@ function LandingPage() {
                                 color: 'white',
                                 fontSize: '1.1rem',
                                 fontWeight: 600,
-                                cursor: 'default',
+                                cursor: 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -448,7 +642,7 @@ function LandingPage() {
                         </motion.button>
 
                         <motion.button
-                            onClick={() => { }}
+                            onClick={() => setIsWaitlistOpen(true)}
                             whileHover={{ scale: 1.02, background: 'rgba(255,255,255,0.9)' }}
                             whileTap={{ scale: 0.98 }}
                             style={{
@@ -460,7 +654,7 @@ function LandingPage() {
                                 color: '#4A3A3A',
                                 fontSize: '1rem',
                                 fontWeight: 500,
-                                cursor: 'default'
+                                cursor: 'pointer'
                             }}
                         >
                             Coming Soon
@@ -844,7 +1038,7 @@ function LandingPage() {
                         Be the first to join our private space — launching soon
                     </p>
                     <motion.button
-                        onClick={() => { }}
+                        onClick={() => setIsWaitlistOpen(true)}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         style={{
@@ -855,7 +1049,7 @@ function LandingPage() {
                             color: '#FF9B9B',
                             fontSize: isDesktop ? '1.15rem' : '1.1rem',
                             fontWeight: 600,
-                            cursor: 'default',
+                            cursor: 'pointer',
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: '10px'
@@ -881,6 +1075,13 @@ function LandingPage() {
                 <p>Made with 💕 for couples everywhere</p>
                 <p style={{ marginTop: '0.5rem', fontSize: '0.85rem', opacity: 0.7 }}>© 2026 VibeAura. All rights reserved.</p>
             </motion.footer>
+
+            {/* Waitlist Modal */}
+            <WaitlistModal
+                isOpen={isWaitlistOpen}
+                onClose={() => setIsWaitlistOpen(false)}
+                isDesktop={isDesktop}
+            />
         </motion.div>
     )
 }
