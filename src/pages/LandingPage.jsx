@@ -1,9 +1,13 @@
-import { useState, useEffect, memo, useMemo } from 'react'
+import { useState, useEffect, memo, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Heart, Handshake, Disc, ArrowRight, Sparkles, MessageCircle, Star, Moon, Play, Shield, Zap, Camera, Music, Gift, Check, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import '../App.css'
+
+gsap.registerPlugin(ScrollTrigger);
 
 // Import assets - using existing background images
 const heroImg = '/assets/backgrounds/hug.jpg';
@@ -31,6 +35,44 @@ const useWindowSize = () => {
         };
     }, []);
     return size;
+};
+
+// Magnetic button effect hook
+const useMagneticEffect = (ref) => {
+    useEffect(() => {
+        const element = ref.current;
+        if (!element) return;
+
+        const handleMouseMove = (e) => {
+            const rect = element.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            
+            gsap.to(element, {
+                x: x * 0.3,
+                y: y * 0.3,
+                duration: 0.3,
+                ease: 'power2.out'
+            });
+        };
+
+        const handleMouseLeave = () => {
+            gsap.to(element, {
+                x: 0,
+                y: 0,
+                duration: 0.5,
+                ease: 'elastic.out(1, 0.5)'
+            });
+        };
+
+        element.addEventListener('mousemove', handleMouseMove);
+        element.addEventListener('mouseleave', handleMouseLeave);
+
+        return () => {
+            element.removeEventListener('mousemove', handleMouseMove);
+            element.removeEventListener('mouseleave', handleMouseLeave);
+        };
+    }, [ref]);
 };
 
 // Animated background gradient orbs
@@ -239,6 +281,7 @@ const ImageCarousel = memo(({ isDesktop }) => {
 // Feature card with icon
 const FeatureCard = memo(({ icon: Icon, title, description, delay, gradient, isDesktop }) => (
     <motion.div
+        className="feature-card-gsap"
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '0px 0px -100px 0px' }}
@@ -517,6 +560,20 @@ function LandingPage() {
     const isDesktop = width >= 768;
     const isLargeDesktop = width >= 1200;
     const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
+    
+    // Refs for GSAP animations
+    const heroRef = useRef(null);
+    const titleRef = useRef(null);
+    const subtitleRef = useRef(null);
+    const ctaRef = useRef(null);
+    const featuresRef = useRef(null);
+    const galleryRef = useRef(null);
+    const primaryButtonRef = useRef(null);
+    const secondaryButtonRef = useRef(null);
+
+    // Apply magnetic effect to buttons
+    useMagneticEffect(primaryButtonRef);
+    useMagneticEffect(secondaryButtonRef);
 
     // Preload critical images for faster carousel experience
     useEffect(() => {
@@ -525,6 +582,98 @@ function LandingPage() {
             const img = new Image();
             img.src = src;
         });
+    }, []);
+
+    // GSAP Hero entrance animation
+    useEffect(() => {
+        const ctx = gsap.context(() => {
+            // Hero title animation with split effect
+            const titleLines = titleRef.current?.querySelectorAll('span');
+            if (titleLines) {
+                gsap.from(titleLines, {
+                    duration: 1.2,
+                    y: 100,
+                    opacity: 0,
+                    stagger: 0.2,
+                    ease: 'power4.out',
+                    delay: 0.3
+                });
+            }
+
+            // Subtitle fade in
+            gsap.from(subtitleRef.current, {
+                duration: 1,
+                y: 50,
+                opacity: 0,
+                ease: 'power3.out',
+                delay: 0.8
+            });
+
+            // CTA buttons pop in
+            gsap.from(ctaRef.current?.children || [], {
+                duration: 0.8,
+                scale: 0.8,
+                opacity: 0,
+                stagger: 0.15,
+                ease: 'back.out(1.7)',
+                delay: 1.2
+            });
+        }, heroRef);
+
+        return () => ctx.revert();
+    }, []);
+
+    // GSAP ScrollTrigger for features section
+    useEffect(() => {
+        const ctx = gsap.context(() => {
+            const featureCards = featuresRef.current?.querySelectorAll('.feature-card-gsap');
+            if (featureCards) {
+                featureCards.forEach((card, i) => {
+                    gsap.from(card, {
+                        scrollTrigger: {
+                            trigger: card,
+                            start: 'top 85%',
+                            end: 'top 20%',
+                            toggleActions: 'play none none reverse'
+                        },
+                        y: 80,
+                        opacity: 0,
+                        duration: 1,
+                        ease: 'power3.out',
+                        delay: i * 0.1
+                    });
+
+                    // Parallax effect on scroll
+                    gsap.to(card, {
+                        scrollTrigger: {
+                            trigger: card,
+                            start: 'top bottom',
+                            end: 'bottom top',
+                            scrub: 1
+                        },
+                        y: -30
+                    });
+                });
+            }
+
+            // Gallery images stagger animation
+            const galleryItems = galleryRef.current?.querySelectorAll('.gallery-item-gsap');
+            if (galleryItems) {
+                gsap.from(galleryItems, {
+                    scrollTrigger: {
+                        trigger: galleryRef.current,
+                        start: 'top 80%'
+                    },
+                    scale: 0.8,
+                    opacity: 0,
+                    duration: 0.8,
+                    stagger: 0.15,
+                    ease: 'back.out(1.4)'
+                });
+            }
+        });
+
+        return () => ctx.revert();
     }, []);
 
     return (
@@ -543,6 +692,7 @@ function LandingPage() {
 
             {/* Hero Section */}
             <motion.section
+                ref={heroRef}
                 style={{
                     minHeight: '100vh',
                     display: 'flex',
@@ -585,32 +735,30 @@ function LandingPage() {
                     </motion.div>
 
                     {/* Title */}
-                    <motion.h1
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
+                    <h1
+                        ref={titleRef}
                         style={{
                             fontSize: isLargeDesktop ? '4rem' : isDesktop ? '3.5rem' : '3rem',
                             fontFamily: 'var(--font-serif)',
                             marginBottom: '1.5rem',
-                            lineHeight: 1.1
+                            lineHeight: 1.1,
+                            overflow: 'hidden'
                         }}
                     >
-                        <span style={{ color: '#4A3A3A' }}>Love,</span><br />
+                        <span style={{ color: '#4A3A3A', display: 'inline-block' }}>Love,</span><br />
                         <span style={{
                             background: 'linear-gradient(135deg, #FF9B9B, #FF7B7B)',
                             WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent'
+                            WebkitTextFillColor: 'transparent',
+                            display: 'inline-block'
                         }}>
                             but designed.
                         </span>
-                    </motion.h1>
+                    </h1>
 
                     {/* Subtitle */}
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4 }}
+                    <p
+                        ref={subtitleRef}
                         style={{
                             fontSize: isDesktop ? '1.25rem' : '1.1rem',
                             color: '#7A6A6A',
@@ -621,13 +769,11 @@ function LandingPage() {
                         }}
                     >
                         A private space where your relationship grows, breathes, and thrives. Create memories, share moments, and stay connected. ✨
-                    </motion.p>
+                    </p>
 
                     {/* CTA Buttons */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.5 }}
+                    <div
+                        ref={ctaRef}
                         style={{
                             display: 'flex',
                             flexDirection: isDesktop ? 'row' : 'column',
@@ -638,6 +784,7 @@ function LandingPage() {
                         }}
                     >
                         <motion.button
+                            ref={primaryButtonRef}
                             onClick={() => setIsWaitlistOpen(true)}
                             whileHover={{ scale: 1.03, boxShadow: '0 15px 40px rgba(255, 155, 155, 0.4)' }}
                             whileTap={{ scale: 0.97 }}
@@ -664,6 +811,7 @@ function LandingPage() {
                         </motion.button>
 
                         <motion.button
+                            ref={secondaryButtonRef}
                             onClick={() => setIsWaitlistOpen(true)}
                             whileHover={{ scale: 1.02, background: 'rgba(255,255,255,0.9)' }}
                             whileTap={{ scale: 0.98 }}
@@ -681,7 +829,7 @@ function LandingPage() {
                         >
                             Coming Soon
                         </motion.button>
-                    </motion.div>
+                    </div>
 
                     {/* Stats for desktop */}
                     {isDesktop && (
@@ -731,6 +879,7 @@ function LandingPage() {
 
             {/* Features Section */}
             <motion.section
+                ref={featuresRef}
                 style={{
                     padding: isDesktop ? '6rem 4rem' : '4rem 1.5rem',
                     position: 'relative',
@@ -885,6 +1034,7 @@ function LandingPage() {
 
             {/* Gallery Section */}
             <motion.section
+                ref={galleryRef}
                 style={{
                     padding: isDesktop ? '4rem' : '2rem 1.5rem',
                     position: 'relative',
@@ -921,6 +1071,7 @@ function LandingPage() {
                     ].map((item, i) => (
                         <motion.div
                             key={i}
+                            className="gallery-item-gsap"
                             initial={{ opacity: 0, scale: 0.9 }}
                             whileInView={{ opacity: 1, scale: 1 }}
                             transition={{ delay: i * 0.1 }}
