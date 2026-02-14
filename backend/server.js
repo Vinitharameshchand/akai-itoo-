@@ -3,6 +3,8 @@ import cors from 'cors';
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+import nodemailer from 'nodemailer';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,8 +13,70 @@ const app = express();
 const PORT = process.env.PORT || 5003;
 const DATA_FILE = path.join(__dirname, 'data', 'waitlist.json');
 
+dotenv.config();
+
 app.use(cors());
 app.use(express.json());
+
+// Create nodemailer transporter (fallback to ethereal test account when no SMTP config)
+let transporter;
+async function createTransporter() {
+    if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+        transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port: Number(process.env.SMTP_PORT) || 587,
+            secure: Number(process.env.SMTP_PORT) === 465, // true for 465, false for other ports
+            auth: {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS
+            }
+        });
+        return;
+    }
+
+    // Fallback to Ethereal test account for development
+    const testAccount = await nodemailer.createTestAccount();
+    transporter = nodemailer.createTransport({
+        host: 'smtp.ethereal.email',
+        port: 587,
+        secure: false,
+        auth: {
+            user: testAccount.user,
+            pass: testAccount.pass
+        }
+    });
+    console.log('Using Ethereal test account for emails. Preview URL will be logged.');
+}
+
+createTransporter().catch((err) => console.error('Error creating mail transporter', err));
+
+async function sendConfirmationEmail(user) {
+    if (!transporter) await createTransporter();
+
+    const fromName = process.env.FROM_NAME || 'VibeAura';
+    const fromEmail = process.env.FROM_EMAIL || (process.env.SMTP_USER || 'no-reply@vibeaura.com');
+
+    const mailOptions = {
+        from: `${fromName} <${fromEmail}>`,
+        to: user.email,
+        subject: 'Welcome — You joined the VibeAura waitlist 💕',
+        text: `Hi ${user.name || ''},\n\nThanks for joining the VibeAura waitlist! We'll send updates and early access info to this email.\n\nLove,\nThe VibeAura Team`,
+        html: `<p>Hi ${user.name || ''},</p><p>Thanks for joining the <strong>VibeAura</strong> waitlist! We'll send updates and early access info to this email.</p><p>Love,<br/>The VibeAura Team</p>`
+    };
+
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        // If using Ethereal, log preview URL
+        if (nodemailer.getTestMessageUrl && info) {
+            const preview = nodemailer.getTestMessageUrl(info);
+            if (preview) console.log('Preview email at:', preview);
+        }
+        return { ok: true };
+    } catch (err) {
+        console.error('Error sending confirmation email:', err);
+        return { ok: false, error: err };
+    }
+}
 
 // Ensure data file exists
 async function initDataFile() {
@@ -54,7 +118,18 @@ app.post('/api/waitlist', async (req, res) => {
         await fs.writeJson(DATA_FILE, waitlist, { spaces: 2 });
 
         console.log(`New user added to waitlist: ${email}`);
-        res.json({ success: true, message: 'Successfully joined the waitlist!' });
+        // Attempt to send confirmation email (non-blocking failure handled)
+        try {
+            const mailResult = await sendConfirmationEmail(newUser);
+            if (mailResult.ok) {
+                res.json({ success: true, message: 'Successfully joined the waitlist! Confirmation email sent.' });
+            } else {
+                res.json({ success: true, message: 'Successfully joined the waitlist! But we could not send a confirmation email right now.' });
+            }
+        } catch (mailErr) {
+            console.error('Mail error:', mailErr);
+            res.json({ success: true, message: 'Successfully joined the waitlist! (email failed)' });
+        }
     } catch (err) {
         console.error('Error saving to waitlist:', err);
         res.status(500).json({ success: false, message: 'Server error. Please try again later.' });
