@@ -2,7 +2,8 @@ import { useState, useEffect, memo, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Heart, Handshake, Disc, ArrowRight, Sparkles, MessageCircle, Star, Moon, Play, Shield, Zap, Camera, Music, Gift, Check, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import { supabase } from '../lib/supabase'
+import { sendWaitlistEmail } from '../lib/email'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import '../App.css'
@@ -373,19 +374,35 @@ const WaitlistModal = memo(({ isOpen, onClose, isDesktop }) => {
         setStatus({ type: '', message: '' });
 
         try {
-            const response = await axios.post('https://akai-itoo.onrender.com/api/waitlist', formData);
-            if (response.data.success) {
-                setStatus({ type: 'success', message: 'You have been added to the waitlist! 💕' });
-                setTimeout(() => {
-                    onClose();
-                    setFormData({ name: '', email: '' });
-                    setStatus({ type: '', message: '' });
-                }, 1500); // Faster feedback loop (1.5s instead of 3s)
+            // 1. Save to Supabase
+            const { error: dbError } = await supabase
+                .from('waitlist')
+                .insert([{
+                    name: formData.name,
+                    email: formData.email,
+                    timestamp: new Date().toISOString()
+                }]);
+
+            if (dbError) {
+                if (dbError.code === '23505') { // Unique constraint violation (if email is unique)
+                    throw new Error('You are already on the waitlist! 💕');
+                }
+                throw dbError;
             }
+
+            // 2. Send Email in background (don't await to keep UI fast)
+            sendWaitlistEmail(formData).catch(err => console.error('Email background error:', err));
+
+            setStatus({ type: 'success', message: 'You have been added to the waitlist! 💕' });
+            setTimeout(() => {
+                onClose();
+                setFormData({ name: '', email: '' });
+                setStatus({ type: '', message: '' });
+            }, 1500);
         } catch (error) {
             setStatus({
                 type: 'error',
-                message: error.response?.data?.message || 'Something went wrong. Please try again.'
+                message: error.message || 'Something went wrong. Please try again.'
             });
         } finally {
             setLoading(false);
@@ -578,17 +595,8 @@ function LandingPage() {
     useMagneticEffect(primaryButtonRef);
     useMagneticEffect(secondaryButtonRef);
 
-    // Wake up the backend (Render cold start) on mount
+    // Preload critical images for faster carousel experience
     useEffect(() => {
-        const wakeupBackend = async () => {
-            try {
-                // Hardcoded fallback for reliability as per user's last change
-                const baseUrl = import.meta.env.VITE_BACKEND_URL || 'https://akai-itoo.onrender.com';
-                await axios.get(`${baseUrl}/api/waitlist`).catch(() => { });
-            } catch (e) { }
-        };
-        wakeupBackend();
-
         const imagesToPreload = [heroImg, dinnerImg, noodlesImg, trainImg];
         imagesToPreload.forEach((src) => {
             const img = new Image();
