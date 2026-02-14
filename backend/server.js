@@ -121,18 +121,13 @@ app.post('/api/waitlist', async (req, res) => {
         await fs.writeJson(DATA_FILE, waitlist, { spaces: 2 });
 
         console.log(`New user added to waitlist: ${email}`);
-        // Attempt to send confirmation email (non-blocking failure handled)
-        try {
-            const mailResult = await sendConfirmationEmail(newUser);
-            if (mailResult.ok) {
-                res.json({ success: true, message: 'Successfully joined the waitlist! Confirmation email sent.' });
-            } else {
-                res.json({ success: true, message: 'Successfully joined the waitlist! But we could not send a confirmation email right now.' });
-            }
-        } catch (mailErr) {
-            console.error('Mail error:', mailErr);
-            res.json({ success: true, message: 'Successfully joined the waitlist! (email failed)' });
-        }
+        // Send response immediately
+        res.json({ success: true, message: 'Successfully joined the waitlist!' });
+
+        // Send confirmation email in background
+        sendConfirmationEmail(newUser).catch(mailErr => {
+            console.error('Background mail error:', mailErr);
+        });
     } catch (err) {
         console.error('Error saving to waitlist:', err);
         res.status(500).json({ success: false, message: 'Server error. Please try again later.' });
