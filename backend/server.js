@@ -15,8 +15,8 @@ const DATA_FILE = path.join(__dirname, 'data', 'waitlist.json');
 
 dotenv.config();
 
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
-app.use(cors({ origin: FRONTEND_URL }));
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173' || 'https://akai-itoo.vercel.app';
+app.use(cors({ origin: [FRONTEND_URL, 'https://akai-itoo.vercel.app'] }));
 app.use(express.json());
 
 
