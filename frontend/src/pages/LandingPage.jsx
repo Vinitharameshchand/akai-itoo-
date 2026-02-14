@@ -687,8 +687,10 @@ function LandingPage() {
                 margin: '0 auto'
             }}
         >
-            <GradientOrbs isDesktop={isDesktop} />
-            <FloatingElements isDesktop={isDesktop} />
+            {/* Wrap main content to hide background and animations when modal is open */}
+            <div aria-hidden={isWaitlistOpen} style={{ display: isWaitlistOpen ? 'none' : 'block' }}>
+                {!isWaitlistOpen && <GradientOrbs isDesktop={isDesktop} />}
+                {!isWaitlistOpen && <FloatingElements isDesktop={isDesktop} />}
 
             {/* Hero Section */}
             <motion.section
@@ -1249,6 +1251,8 @@ function LandingPage() {
                 <p>Made with 💕 for couples everywhere</p>
                 <p style={{ marginTop: '0.5rem', fontSize: '0.85rem', opacity: 0.7 }}>© 2026 VibeAura. All rights reserved.</p>
             </motion.footer>
+
+            </div>
 
             {/* Waitlist Modal */}
             <WaitlistModal
