@@ -47,7 +47,7 @@ const useMagneticEffect = (ref) => {
             const rect = element.getBoundingClientRect();
             const x = e.clientX - rect.left - rect.width / 2;
             const y = e.clientY - rect.top - rect.height / 2;
-            
+
             gsap.to(element, {
                 x: x * 0.3,
                 y: y * 0.3,
@@ -400,9 +400,10 @@ const WaitlistModal = memo(({ isOpen, onClose, isDesktop }) => {
                     inset: 0,
                     zIndex: 1000,
                     display: 'flex',
-                    alignItems: 'center',
+                    alignItems: 'flex-start',
                     justifyContent: 'center',
-                    padding: '1.5rem'
+                    padding: isDesktop ? '8vh 1.5rem' : '4vh 1.5rem',
+                    overflowY: 'auto'
                 }}>
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -412,8 +413,7 @@ const WaitlistModal = memo(({ isOpen, onClose, isDesktop }) => {
                         style={{
                             position: 'absolute',
                             inset: 0,
-                            background: 'rgba(0,0,0,0.4)',
-                            backdropFilter: 'blur(8px)'
+                            background: 'transparent'
                         }}
                     />
                     <motion.div
@@ -560,7 +560,7 @@ function LandingPage() {
     const isDesktop = width >= 768;
     const isLargeDesktop = width >= 1200;
     const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
-    
+
     // Refs for GSAP animations
     const heroRef = useRef(null);
     const titleRef = useRef(null);
@@ -677,582 +677,584 @@ function LandingPage() {
     }, []);
 
     return (
-        <motion.div
-            className="app-container"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            style={{
-                overflow: 'hidden',
-                maxWidth: isLargeDesktop ? '1400px' : '100%',
-                margin: '0 auto'
-            }}
-        >
-            {/* Wrap main content to hide background and animations when modal is open */}
-            <div aria-hidden={isWaitlistOpen} style={{ display: isWaitlistOpen ? 'none' : 'block' }}>
-                {!isWaitlistOpen && <GradientOrbs isDesktop={isDesktop} />}
-                {!isWaitlistOpen && <FloatingElements isDesktop={isDesktop} />}
-
-            {/* Hero Section */}
-            <motion.section
-                ref={heroRef}
+        <>
+            <motion.div
+                className="app-container"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 style={{
-                    minHeight: '100vh',
-                    display: 'flex',
-                    flexDirection: isDesktop ? 'row' : 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: isDesktop ? '2rem 4rem' : '2rem 1.5rem',
-                    position: 'relative',
-                    zIndex: 2,
-                    gap: isDesktop ? '4rem' : '2rem'
+                    overflow: 'hidden',
+                    maxWidth: isLargeDesktop ? '1400px' : '100%',
+                    margin: '0 auto'
                 }}
             >
-                {/* Left side - Text content */}
-                <motion.div
-                    style={{
-                        flex: 1,
-                        textAlign: isDesktop ? 'left' : 'center',
-                        maxWidth: isDesktop ? '550px' : '100%',
-                        order: isDesktop ? 1 : 2
-                    }}
-                >
-                    {/* Badge */}
-                    <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        style={{
-                            background: 'rgba(255, 155, 155, 0.15)',
-                            border: '1px solid rgba(255, 155, 155, 0.3)',
-                            borderRadius: '50px',
-                            padding: '10px 24px',
-                            marginBottom: '1.5rem',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '8px'
-                        }}
-                    >
-                        <Sparkles size={18} color="#FF9B9B" />
-                        <span style={{ fontSize: '0.9rem', color: '#FF9B9B', fontWeight: 500 }}>For couples who want more</span>
-                    </motion.div>
+                {/* Wrap main content to hide background and animations when modal is open */}
+                <div aria-hidden={isWaitlistOpen}>
+                    <GradientOrbs isDesktop={isDesktop} />
+                    <FloatingElements isDesktop={isDesktop} />
 
-                    {/* Title */}
-                    <h1
-                        ref={titleRef}
+                    {/* Hero Section */}
+                    <motion.section
+                        ref={heroRef}
                         style={{
-                            fontSize: isLargeDesktop ? '4rem' : isDesktop ? '3.5rem' : '3rem',
-                            fontFamily: 'var(--font-serif)',
-                            marginBottom: '1.5rem',
-                            lineHeight: 1.1,
-                            overflow: 'hidden'
-                        }}
-                    >
-                        <span style={{ color: '#4A3A3A', display: 'inline-block' }}>Love,</span><br />
-                        <span style={{
-                            background: 'linear-gradient(135deg, #FF9B9B, #FF7B7B)',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                            display: 'inline-block'
-                        }}>
-                            but designed.
-                        </span>
-                    </h1>
-
-                    {/* Subtitle */}
-                    <p
-                        ref={subtitleRef}
-                        style={{
-                            fontSize: isDesktop ? '1.25rem' : '1.1rem',
-                            color: '#7A6A6A',
-                            maxWidth: isDesktop ? '450px' : '320px',
-                            marginBottom: '2rem',
-                            lineHeight: 1.6,
-                            margin: isDesktop ? '0 0 2rem 0' : '0 auto 2rem auto'
-                        }}
-                    >
-                        A private space where your relationship grows, breathes, and thrives. Create memories, share moments, and stay connected. ✨
-                    </p>
-
-                    {/* CTA Buttons */}
-                    <div
-                        ref={ctaRef}
-                        style={{
+                            minHeight: '100vh',
                             display: 'flex',
                             flexDirection: isDesktop ? 'row' : 'column',
-                            gap: '1rem',
-                            width: '100%',
-                            maxWidth: isDesktop ? '450px' : '320px',
-                            margin: isDesktop ? '0' : '0 auto'
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: isDesktop ? '2rem 4rem' : '2rem 1.5rem',
+                            position: 'relative',
+                            zIndex: 2,
+                            gap: isDesktop ? '4rem' : '2rem'
                         }}
                     >
-                        <motion.button
-                            ref={primaryButtonRef}
-                            onClick={() => setIsWaitlistOpen(true)}
-                            whileHover={{ scale: 1.03, boxShadow: '0 15px 40px rgba(255, 155, 155, 0.4)' }}
-                            whileTap={{ scale: 0.97 }}
-                            style={{
-                                background: 'linear-gradient(135deg, #FF9B9B, #FF7B7B)',
-                                border: 'none',
-                                borderRadius: '16px',
-                                padding: isDesktop ? '18px 40px' : '18px 32px',
-                                color: 'white',
-                                fontSize: '1.1rem',
-                                fontWeight: 600,
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '10px',
-                                boxShadow: '0 10px 30px rgba(255, 155, 155, 0.3)',
-                                flex: isDesktop ? 'none' : 1
-                            }}
-                        >
-                            <Heart size={22} fill="white" />
-                            Join Soon
-                            <ArrowRight size={20} />
-                        </motion.button>
-
-                        <motion.button
-                            ref={secondaryButtonRef}
-                            onClick={() => setIsWaitlistOpen(true)}
-                            whileHover={{ scale: 1.02, background: 'rgba(255,255,255,0.9)' }}
-                            whileTap={{ scale: 0.98 }}
-                            style={{
-                                background: 'rgba(255, 255, 255, 0.6)',
-                                backdropFilter: 'blur(10px)',
-                                border: '1px solid rgba(255, 155, 155, 0.3)',
-                                borderRadius: '16px',
-                                padding: '16px 32px',
-                                color: '#4A3A3A',
-                                fontSize: '1rem',
-                                fontWeight: 500,
-                                cursor: 'pointer'
-                            }}
-                        >
-                            Coming Soon
-                        </motion.button>
-                    </div>
-
-                    {/* Stats for desktop */}
-                    {isDesktop && (
+                        {/* Left side - Text content */}
                         <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.6 }}
                             style={{
-                                display: 'flex',
-                                gap: '3rem',
-                                marginTop: '3rem',
-                                paddingTop: '2rem',
-                                borderTop: '1px solid rgba(255, 155, 155, 0.2)'
+                                flex: 1,
+                                textAlign: isDesktop ? 'left' : 'center',
+                                maxWidth: isDesktop ? '550px' : '100%',
+                                order: isDesktop ? 1 : 2
                             }}
                         >
-                            <div>
-                                <div style={{ fontSize: '2rem', fontWeight: 700, color: '#FF9B9B' }}>10K+</div>
-                                <div style={{ fontSize: '0.9rem', color: '#7A6A6A' }}>Happy Couples</div>
-                            </div>
-                            <div>
-                                <div style={{ fontSize: '2rem', fontWeight: 700, color: '#FF9B9B' }}>50K+</div>
-                                <div style={{ fontSize: '0.9rem', color: '#7A6A6A' }}>Memories Shared</div>
-                            </div>
-                            <div>
-                                <div style={{ fontSize: '2rem', fontWeight: 700, color: '#FF9B9B' }}>4.9★</div>
-                                <div style={{ fontSize: '0.9rem', color: '#7A6A6A' }}>User Rating</div>
-                            </div>
-                        </motion.div>
-                    )}
-                </motion.div>
-
-                {/* Right side - Image Carousel */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.3, duration: 0.8 }}
-                    style={{
-                        flex: 1,
-                        display: 'flex',
-                        justifyContent: 'center',
-                        order: isDesktop ? 2 : 1
-                    }}
-                >
-                    <ImageCarousel isDesktop={isDesktop} />
-                </motion.div>
-            </motion.section>
-
-            {/* Features Section */}
-            <motion.section
-                ref={featuresRef}
-                style={{
-                    padding: isDesktop ? '6rem 4rem' : '4rem 1.5rem',
-                    position: 'relative',
-                    zIndex: 2
-                }}
-            >
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    style={{ textAlign: 'center', marginBottom: isDesktop ? '4rem' : '3rem' }}
-                >
-                    <h2 style={{
-                        fontSize: isDesktop ? '2.5rem' : '2rem',
-                        fontFamily: 'var(--font-serif)',
-                        marginBottom: '1rem',
-                        color: '#4A3A3A'
-                    }}>
-                        Everything You Need 💕
-                    </h2>
-                    <p style={{
-                        color: '#7A6A6A',
-                        fontSize: isDesktop ? '1.15rem' : '1rem',
-                        maxWidth: '500px',
-                        margin: '0 auto'
-                    }}>
-                        Tools designed for connection, not distraction. Build stronger bonds together.
-                    </p>
-                </motion.div>
-
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: isLargeDesktop ? 'repeat(4, 1fr)' : isDesktop ? 'repeat(2, 1fr)' : 'repeat(2, 1fr)',
-                    gap: isDesktop ? '1.5rem' : '1rem',
-                    maxWidth: '1200px',
-                    margin: '0 auto'
-                }}>
-                    <FeatureCard
-                        icon={Heart}
-                        title="Vibe Pulse"
-                        description="Feel their mood, even from miles away"
-                        delay={0.1}
-                        gradient="linear-gradient(135deg, #FF9B9B, #FF7B7B)"
-                        isDesktop={isDesktop}
-                    />
-                    <FeatureCard
-                        icon={Camera}
-                        title="Memory Wall"
-                        description="Capture moments that matter most"
-                        delay={0.2}
-                        gradient="linear-gradient(135deg, #FFB4B4, #FF9B9B)"
-                        isDesktop={isDesktop}
-                    />
-                    <FeatureCard
-                        icon={Music}
-                        title="Vibe Cinema"
-                        description="Watch & listen together, anywhere"
-                        delay={0.3}
-                        gradient="linear-gradient(135deg, #FF9B9B, #FFB4B4)"
-                        isDesktop={isDesktop}
-                    />
-                    <FeatureCard
-                        icon={Gift}
-                        title="Time Capsule"
-                        description="Send love letters to the future"
-                        delay={0.4}
-                        gradient="linear-gradient(135deg, #FFB4B4, #FFCECE)"
-                        isDesktop={isDesktop}
-                    />
-                </div>
-
-                {/* More features tags */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    style={{
-                        marginTop: '2.5rem',
-                        background: 'rgba(255, 255, 255, 0.5)',
-                        backdropFilter: 'blur(20px)',
-                        borderRadius: '20px',
-                        padding: isDesktop ? '2rem' : '1.5rem',
-                        border: '1px solid rgba(255,255,255,0.8)',
-                        maxWidth: '1200px',
-                        margin: '2.5rem auto 0'
-                    }}
-                >
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
-                        {['Decision Wheel', 'Dream Board', 'Safe Vault', 'AI Chat', 'Games Together', 'Wellness Tracker', 'Secret Handshake', 'Calendar Sync'].map((feature, i) => (
-                            <motion.span
-                                key={feature}
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: i * 0.05 }}
-                                whileHover={{ scale: 1.05, background: 'rgba(255,155,155,0.2)' }}
+                            {/* Badge */}
+                            <motion.div
+                                initial={{ opacity: 0, y: -20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2 }}
                                 style={{
-                                    background: 'rgba(255, 155, 155, 0.1)',
-                                    padding: isDesktop ? '10px 20px' : '8px 16px',
-                                    borderRadius: '20px',
-                                    fontSize: isDesktop ? '0.95rem' : '0.85rem',
-                                    color: '#4A3A3A',
-                                    fontWeight: 500,
-                                    cursor: 'pointer'
+                                    background: 'rgba(255, 155, 155, 0.15)',
+                                    border: '1px solid rgba(255, 155, 155, 0.3)',
+                                    borderRadius: '50px',
+                                    padding: '10px 24px',
+                                    marginBottom: '1.5rem',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '8px'
                                 }}
                             >
-                                {feature}
-                            </motion.span>
-                        ))}
-                    </div>
-                </motion.div>
-            </motion.section>
+                                <Sparkles size={18} color="#FF9B9B" />
+                                <span style={{ fontSize: '0.9rem', color: '#FF9B9B', fontWeight: 500 }}>For couples who want more</span>
+                            </motion.div>
 
-            {/* Benefits Section - Desktop Only */}
-            {isDesktop && (
-                <motion.section
-                    style={{ padding: '4rem', position: 'relative', zIndex: 2 }}
-                >
-                    <div style={{ display: 'flex', gap: '1.5rem', maxWidth: '1200px', margin: '0 auto' }}>
-                        <BenefitCard
-                            icon={Shield}
-                            title="Private & Secure"
-                            items={[
-                                'End-to-end encryption',
-                                'No ads or tracking',
-                                'Your data stays yours',
-                                'Secure cloud backup'
-                            ]}
-                        />
-                        <BenefitCard
-                            icon={Zap}
-                            title="Stay Connected"
-                            items={[
-                                'Real-time sync',
-                                'Instant notifications',
-                                'Works offline',
-                                'Cross-platform support'
-                            ]}
-                        />
-                        <BenefitCard
-                            icon={Heart}
-                            title="Grow Together"
-                            items={[
-                                'Relationship insights',
-                                'Memory milestones',
-                                'Goal tracking',
-                                'Weekly check-ins'
-                            ]}
-                        />
-                    </div>
-                </motion.section>
-            )}
+                            {/* Title */}
+                            <h1
+                                ref={titleRef}
+                                style={{
+                                    fontSize: isLargeDesktop ? '4rem' : isDesktop ? '3.5rem' : '3rem',
+                                    fontFamily: 'var(--font-serif)',
+                                    marginBottom: '1.5rem',
+                                    lineHeight: 1.1,
+                                    overflow: 'hidden'
+                                }}
+                            >
+                                <span style={{ color: '#4A3A3A', display: 'inline-block' }}>Love,</span><br />
+                                <span style={{
+                                    background: 'linear-gradient(135deg, #FF9B9B, #FF7B7B)',
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                    display: 'inline-block'
+                                }}>
+                                    but designed.
+                                </span>
+                            </h1>
 
-            {/* Gallery Section */}
-            <motion.section
-                ref={galleryRef}
-                style={{
-                    padding: isDesktop ? '4rem' : '2rem 1.5rem',
-                    position: 'relative',
-                    zIndex: 2
-                }}
-            >
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    style={{ textAlign: 'center', marginBottom: '2rem' }}
-                >
-                    <h2 style={{
-                        fontSize: isDesktop ? '2.5rem' : '2rem',
-                        fontFamily: 'var(--font-serif)',
-                        color: '#4A3A3A'
-                    }}>
-                        Moments That Matter 🌙
-                    </h2>
-                </motion.div>
+                            {/* Subtitle */}
+                            <p
+                                ref={subtitleRef}
+                                style={{
+                                    fontSize: isDesktop ? '1.25rem' : '1.1rem',
+                                    color: '#7A6A6A',
+                                    maxWidth: isDesktop ? '450px' : '320px',
+                                    marginBottom: '2rem',
+                                    lineHeight: 1.6,
+                                    margin: isDesktop ? '0 0 2rem 0' : '0 auto 2rem auto'
+                                }}
+                            >
+                                A private space where your relationship grows, breathes, and thrives. Create memories, share moments, and stay connected. ✨
+                            </p>
 
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: isLargeDesktop ? 'repeat(4, 1fr)' : 'repeat(2, 1fr)',
-                    gap: isDesktop ? '1rem' : '0.75rem',
-                    maxWidth: '1200px',
-                    margin: '0 auto'
-                }}>
-                    {[
-                        { img: movieImg, label: 'Movie nights' },
-                        { img: gameImg, label: 'Game time' },
-                        { img: dinnerImg, label: 'Dinner dates' },
-                        { img: trainImg, label: 'Adventures' }
-                    ].map((item, i) => (
+                            {/* CTA Buttons */}
+                            <div
+                                ref={ctaRef}
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: isDesktop ? 'row' : 'column',
+                                    gap: '1rem',
+                                    width: '100%',
+                                    maxWidth: isDesktop ? '450px' : '320px',
+                                    margin: isDesktop ? '0' : '0 auto'
+                                }}
+                            >
+                                <motion.button
+                                    ref={primaryButtonRef}
+                                    onClick={() => setIsWaitlistOpen(true)}
+                                    whileHover={{ scale: 1.03, boxShadow: '0 15px 40px rgba(255, 155, 155, 0.4)' }}
+                                    whileTap={{ scale: 0.97 }}
+                                    style={{
+                                        background: 'linear-gradient(135deg, #FF9B9B, #FF7B7B)',
+                                        border: 'none',
+                                        borderRadius: '16px',
+                                        padding: isDesktop ? '18px 40px' : '18px 32px',
+                                        color: 'white',
+                                        fontSize: '1.1rem',
+                                        fontWeight: 600,
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '10px',
+                                        boxShadow: '0 10px 30px rgba(255, 155, 155, 0.3)',
+                                        flex: isDesktop ? 'none' : 1
+                                    }}
+                                >
+                                    <Heart size={22} fill="white" />
+                                    Join Soon
+                                    <ArrowRight size={20} />
+                                </motion.button>
+
+                                <motion.button
+                                    ref={secondaryButtonRef}
+                                    onClick={() => setIsWaitlistOpen(true)}
+                                    whileHover={{ scale: 1.02, background: 'rgba(255,255,255,0.9)' }}
+                                    whileTap={{ scale: 0.98 }}
+                                    style={{
+                                        background: 'rgba(255, 255, 255, 0.6)',
+                                        backdropFilter: 'blur(10px)',
+                                        border: '1px solid rgba(255, 155, 155, 0.3)',
+                                        borderRadius: '16px',
+                                        padding: '16px 32px',
+                                        color: '#4A3A3A',
+                                        fontSize: '1rem',
+                                        fontWeight: 500,
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    Coming Soon
+                                </motion.button>
+                            </div>
+
+                            {/* Stats for desktop */}
+                            {isDesktop && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.6 }}
+                                    style={{
+                                        display: 'flex',
+                                        gap: '3rem',
+                                        marginTop: '3rem',
+                                        paddingTop: '2rem',
+                                        borderTop: '1px solid rgba(255, 155, 155, 0.2)'
+                                    }}
+                                >
+                                    <div>
+                                        <div style={{ fontSize: '2rem', fontWeight: 700, color: '#FF9B9B' }}>10K+</div>
+                                        <div style={{ fontSize: '0.9rem', color: '#7A6A6A' }}>Happy Couples</div>
+                                    </div>
+                                    <div>
+                                        <div style={{ fontSize: '2rem', fontWeight: 700, color: '#FF9B9B' }}>50K+</div>
+                                        <div style={{ fontSize: '0.9rem', color: '#7A6A6A' }}>Memories Shared</div>
+                                    </div>
+                                    <div>
+                                        <div style={{ fontSize: '2rem', fontWeight: 700, color: '#FF9B9B' }}>4.9★</div>
+                                        <div style={{ fontSize: '0.9rem', color: '#7A6A6A' }}>User Rating</div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </motion.div>
+
+                        {/* Right side - Image Carousel */}
                         <motion.div
-                            key={i}
-                            className="gallery-item-gsap"
                             initial={{ opacity: 0, scale: 0.9 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: i * 0.1 }}
-                            whileHover={{ scale: 1.03 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.3, duration: 0.8 }}
                             style={{
-                                position: 'relative',
-                                borderRadius: isDesktop ? '20px' : '16px',
-                                overflow: 'hidden',
-                                aspectRatio: isLargeDesktop ? '4/3' : '1',
-                                cursor: 'pointer'
+                                flex: 1,
+                                display: 'flex',
+                                justifyContent: 'center',
+                                order: isDesktop ? 2 : 1
                             }}
                         >
-                            <img
-                                src={item.img}
-                                alt={item.label}
-                                loading="lazy"
-                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            />
-                            <div style={{
-                                position: 'absolute',
-                                inset: 0,
-                                background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)',
-                                display: 'flex',
-                                alignItems: 'flex-end',
-                                padding: isDesktop ? '1.5rem' : '1rem'
+                            <ImageCarousel isDesktop={isDesktop} />
+                        </motion.div>
+                    </motion.section>
+
+                    {/* Features Section */}
+                    <motion.section
+                        ref={featuresRef}
+                        style={{
+                            padding: isDesktop ? '6rem 4rem' : '4rem 1.5rem',
+                            position: 'relative',
+                            zIndex: 2
+                        }}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            style={{ textAlign: 'center', marginBottom: isDesktop ? '4rem' : '3rem' }}
+                        >
+                            <h2 style={{
+                                fontSize: isDesktop ? '2.5rem' : '2rem',
+                                fontFamily: 'var(--font-serif)',
+                                marginBottom: '1rem',
+                                color: '#4A3A3A'
                             }}>
-                                <span style={{
-                                    color: 'white',
-                                    fontSize: isDesktop ? '1.1rem' : '0.9rem',
-                                    fontWeight: 500
-                                }}>
-                                    {item.label}
-                                </span>
+                                Everything You Need 💕
+                            </h2>
+                            <p style={{
+                                color: '#7A6A6A',
+                                fontSize: isDesktop ? '1.15rem' : '1rem',
+                                maxWidth: '500px',
+                                margin: '0 auto'
+                            }}>
+                                Tools designed for connection, not distraction. Build stronger bonds together.
+                            </p>
+                        </motion.div>
+
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: isLargeDesktop ? 'repeat(4, 1fr)' : isDesktop ? 'repeat(2, 1fr)' : 'repeat(2, 1fr)',
+                            gap: isDesktop ? '1.5rem' : '1rem',
+                            maxWidth: '1200px',
+                            margin: '0 auto'
+                        }}>
+                            <FeatureCard
+                                icon={Heart}
+                                title="Vibe Pulse"
+                                description="Feel their mood, even from miles away"
+                                delay={0.1}
+                                gradient="linear-gradient(135deg, #FF9B9B, #FF7B7B)"
+                                isDesktop={isDesktop}
+                            />
+                            <FeatureCard
+                                icon={Camera}
+                                title="Memory Wall"
+                                description="Capture moments that matter most"
+                                delay={0.2}
+                                gradient="linear-gradient(135deg, #FFB4B4, #FF9B9B)"
+                                isDesktop={isDesktop}
+                            />
+                            <FeatureCard
+                                icon={Music}
+                                title="Vibe Cinema"
+                                description="Watch & listen together, anywhere"
+                                delay={0.3}
+                                gradient="linear-gradient(135deg, #FF9B9B, #FFB4B4)"
+                                isDesktop={isDesktop}
+                            />
+                            <FeatureCard
+                                icon={Gift}
+                                title="Time Capsule"
+                                description="Send love letters to the future"
+                                delay={0.4}
+                                gradient="linear-gradient(135deg, #FFB4B4, #FFCECE)"
+                                isDesktop={isDesktop}
+                            />
+                        </div>
+
+                        {/* More features tags */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            style={{
+                                marginTop: '2.5rem',
+                                background: 'rgba(255, 255, 255, 0.5)',
+                                backdropFilter: 'blur(20px)',
+                                borderRadius: '20px',
+                                padding: isDesktop ? '2rem' : '1.5rem',
+                                border: '1px solid rgba(255,255,255,0.8)',
+                                maxWidth: '1200px',
+                                margin: '2.5rem auto 0'
+                            }}
+                        >
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'center' }}>
+                                {['Decision Wheel', 'Dream Board', 'Safe Vault', 'AI Chat', 'Games Together', 'Wellness Tracker', 'Secret Handshake', 'Calendar Sync'].map((feature, i) => (
+                                    <motion.span
+                                        key={feature}
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        whileInView={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: i * 0.05 }}
+                                        whileHover={{ scale: 1.05, background: 'rgba(255,155,155,0.2)' }}
+                                        style={{
+                                            background: 'rgba(255, 155, 155, 0.1)',
+                                            padding: isDesktop ? '10px 20px' : '8px 16px',
+                                            borderRadius: '20px',
+                                            fontSize: isDesktop ? '0.95rem' : '0.85rem',
+                                            color: '#4A3A3A',
+                                            fontWeight: 500,
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        {feature}
+                                    </motion.span>
+                                ))}
                             </div>
                         </motion.div>
-                    ))}
+                    </motion.section>
+
+                    {/* Benefits Section - Desktop Only */}
+                    {isDesktop && (
+                        <motion.section
+                            style={{ padding: '4rem', position: 'relative', zIndex: 2 }}
+                        >
+                            <div style={{ display: 'flex', gap: '1.5rem', maxWidth: '1200px', margin: '0 auto' }}>
+                                <BenefitCard
+                                    icon={Shield}
+                                    title="Private & Secure"
+                                    items={[
+                                        'End-to-end encryption',
+                                        'No ads or tracking',
+                                        'Your data stays yours',
+                                        'Secure cloud backup'
+                                    ]}
+                                />
+                                <BenefitCard
+                                    icon={Zap}
+                                    title="Stay Connected"
+                                    items={[
+                                        'Real-time sync',
+                                        'Instant notifications',
+                                        'Works offline',
+                                        'Cross-platform support'
+                                    ]}
+                                />
+                                <BenefitCard
+                                    icon={Heart}
+                                    title="Grow Together"
+                                    items={[
+                                        'Relationship insights',
+                                        'Memory milestones',
+                                        'Goal tracking',
+                                        'Weekly check-ins'
+                                    ]}
+                                />
+                            </div>
+                        </motion.section>
+                    )}
+
+                    {/* Gallery Section */}
+                    <motion.section
+                        ref={galleryRef}
+                        style={{
+                            padding: isDesktop ? '4rem' : '2rem 1.5rem',
+                            position: 'relative',
+                            zIndex: 2
+                        }}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            style={{ textAlign: 'center', marginBottom: '2rem' }}
+                        >
+                            <h2 style={{
+                                fontSize: isDesktop ? '2.5rem' : '2rem',
+                                fontFamily: 'var(--font-serif)',
+                                color: '#4A3A3A'
+                            }}>
+                                Moments That Matter 🌙
+                            </h2>
+                        </motion.div>
+
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: isLargeDesktop ? 'repeat(4, 1fr)' : 'repeat(2, 1fr)',
+                            gap: isDesktop ? '1rem' : '0.75rem',
+                            maxWidth: '1200px',
+                            margin: '0 auto'
+                        }}>
+                            {[
+                                { img: movieImg, label: 'Movie nights' },
+                                { img: gameImg, label: 'Game time' },
+                                { img: dinnerImg, label: 'Dinner dates' },
+                                { img: trainImg, label: 'Adventures' }
+                            ].map((item, i) => (
+                                <motion.div
+                                    key={i}
+                                    className="gallery-item-gsap"
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    whileInView={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: i * 0.1 }}
+                                    whileHover={{ scale: 1.03 }}
+                                    style={{
+                                        position: 'relative',
+                                        borderRadius: isDesktop ? '20px' : '16px',
+                                        overflow: 'hidden',
+                                        aspectRatio: isLargeDesktop ? '4/3' : '1',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    <img
+                                        src={item.img}
+                                        alt={item.label}
+                                        loading="lazy"
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    />
+                                    <div style={{
+                                        position: 'absolute',
+                                        inset: 0,
+                                        background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)',
+                                        display: 'flex',
+                                        alignItems: 'flex-end',
+                                        padding: isDesktop ? '1.5rem' : '1rem'
+                                    }}>
+                                        <span style={{
+                                            color: 'white',
+                                            fontSize: isDesktop ? '1.1rem' : '0.9rem',
+                                            fontWeight: 500
+                                        }}>
+                                            {item.label}
+                                        </span>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </motion.section>
+
+                    {/* Quote Section */}
+                    <motion.section
+                        style={{
+                            padding: isDesktop ? '4rem' : '3rem 1.5rem',
+                            position: 'relative',
+                            zIndex: 2
+                        }}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true }}
+                            style={{
+                                background: 'linear-gradient(135deg, rgba(255,155,155,0.15), rgba(255,255,255,0.5))',
+                                backdropFilter: 'blur(20px)',
+                                borderRadius: '30px',
+                                padding: isDesktop ? '4rem' : '3rem 2rem',
+                                textAlign: 'center',
+                                border: '1px solid rgba(255,155,155,0.2)',
+                                maxWidth: '900px',
+                                margin: '0 auto'
+                            }}
+                        >
+                            <motion.div
+                                animate={{ rotate: [0, 10, -10, 0] }}
+                                transition={{ duration: 4, repeat: Infinity }}
+                            >
+                                <Star size={isDesktop ? 48 : 40} fill="#FF9B9B" color="#FF9B9B" />
+                            </motion.div>
+                            <motion.p
+                                style={{
+                                    fontSize: isDesktop ? '1.75rem' : '1.5rem',
+                                    fontFamily: 'var(--font-serif)',
+                                    fontStyle: 'italic',
+                                    color: '#4A3A3A',
+                                    marginTop: '1.5rem',
+                                    lineHeight: 1.5
+                                }}
+                            >
+                                "The best relationships aren't about finding the perfect person..."
+                            </motion.p>
+                            <motion.p
+                                style={{
+                                    fontSize: isDesktop ? '2.25rem' : '1.8rem',
+                                    fontWeight: 700,
+                                    marginTop: '1rem',
+                                    background: 'linear-gradient(135deg, #FF9B9B, #FF7B7B)',
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent'
+                                }}
+                            >
+                                They're about growing together.
+                            </motion.p>
+                        </motion.div>
+                    </motion.section>
+
+                    {/* Final CTA */}
+                    <motion.section
+                        style={{
+                            padding: isDesktop ? '4rem' : '3rem 1.5rem 5rem',
+                            position: 'relative',
+                            zIndex: 2
+                        }}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            style={{
+                                background: 'linear-gradient(135deg, #FF9B9B, #FF7B7B)',
+                                borderRadius: '30px',
+                                padding: isDesktop ? '4rem' : '3rem 2rem',
+                                textAlign: 'center',
+                                boxShadow: '0 20px 60px rgba(255, 155, 155, 0.3)',
+                                maxWidth: '900px',
+                                margin: '0 auto'
+                            }}
+                        >
+                            <motion.div
+                                animate={{ scale: [1, 1.1, 1] }}
+                                transition={{ duration: 2, repeat: Infinity }}
+                            >
+                                <Heart size={isDesktop ? 56 : 48} fill="white" color="white" />
+                            </motion.div>
+                            <h2 style={{
+                                fontSize: isDesktop ? '2.25rem' : '1.8rem',
+                                color: 'white',
+                                fontFamily: 'var(--font-serif)',
+                                marginTop: '1.5rem',
+                                marginBottom: '0.75rem'
+                            }}>
+                                Ready to Begin?
+                            </h2>
+                            <p style={{
+                                color: 'rgba(255,255,255,0.9)',
+                                marginBottom: '2rem',
+                                fontSize: isDesktop ? '1.15rem' : '1rem'
+                            }}>
+                                Be the first to join our private space — launching soon
+                            </p>
+                            <motion.button
+                                onClick={() => setIsWaitlistOpen(true)}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                style={{
+                                    background: 'white',
+                                    border: 'none',
+                                    borderRadius: '16px',
+                                    padding: isDesktop ? '18px 48px' : '16px 40px',
+                                    color: '#FF9B9B',
+                                    fontSize: isDesktop ? '1.15rem' : '1.1rem',
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '10px'
+                                }}
+                            >
+                                Join Soon
+                                <ArrowRight size={20} />
+                            </motion.button>
+                        </motion.div>
+                    </motion.section>
+
+                    {/* Footer */}
+                    <motion.footer
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        style={{
+                            textAlign: 'center',
+                            padding: isDesktop ? '3rem' : '2rem',
+                            color: '#7A6A6A',
+                            fontSize: '0.9rem'
+                        }}
+                    >
+                        <p>Made with 💕 for couples everywhere</p>
+                        <p style={{ marginTop: '0.5rem', fontSize: '0.85rem', opacity: 0.7 }}>© 2026 VibeAura. All rights reserved.</p>
+                    </motion.footer>
+
                 </div>
-            </motion.section>
-
-            {/* Quote Section */}
-            <motion.section
-                style={{
-                    padding: isDesktop ? '4rem' : '3rem 1.5rem',
-                    position: 'relative',
-                    zIndex: 2
-                }}
-            >
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    style={{
-                        background: 'linear-gradient(135deg, rgba(255,155,155,0.15), rgba(255,255,255,0.5))',
-                        backdropFilter: 'blur(20px)',
-                        borderRadius: '30px',
-                        padding: isDesktop ? '4rem' : '3rem 2rem',
-                        textAlign: 'center',
-                        border: '1px solid rgba(255,155,155,0.2)',
-                        maxWidth: '900px',
-                        margin: '0 auto'
-                    }}
-                >
-                    <motion.div
-                        animate={{ rotate: [0, 10, -10, 0] }}
-                        transition={{ duration: 4, repeat: Infinity }}
-                    >
-                        <Star size={isDesktop ? 48 : 40} fill="#FF9B9B" color="#FF9B9B" />
-                    </motion.div>
-                    <motion.p
-                        style={{
-                            fontSize: isDesktop ? '1.75rem' : '1.5rem',
-                            fontFamily: 'var(--font-serif)',
-                            fontStyle: 'italic',
-                            color: '#4A3A3A',
-                            marginTop: '1.5rem',
-                            lineHeight: 1.5
-                        }}
-                    >
-                        "The best relationships aren't about finding the perfect person..."
-                    </motion.p>
-                    <motion.p
-                        style={{
-                            fontSize: isDesktop ? '2.25rem' : '1.8rem',
-                            fontWeight: 700,
-                            marginTop: '1rem',
-                            background: 'linear-gradient(135deg, #FF9B9B, #FF7B7B)',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent'
-                        }}
-                    >
-                        They're about growing together.
-                    </motion.p>
-                </motion.div>
-            </motion.section>
-
-            {/* Final CTA */}
-            <motion.section
-                style={{
-                    padding: isDesktop ? '4rem' : '3rem 1.5rem 5rem',
-                    position: 'relative',
-                    zIndex: 2
-                }}
-            >
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    style={{
-                        background: 'linear-gradient(135deg, #FF9B9B, #FF7B7B)',
-                        borderRadius: '30px',
-                        padding: isDesktop ? '4rem' : '3rem 2rem',
-                        textAlign: 'center',
-                        boxShadow: '0 20px 60px rgba(255, 155, 155, 0.3)',
-                        maxWidth: '900px',
-                        margin: '0 auto'
-                    }}
-                >
-                    <motion.div
-                        animate={{ scale: [1, 1.1, 1] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                    >
-                        <Heart size={isDesktop ? 56 : 48} fill="white" color="white" />
-                    </motion.div>
-                    <h2 style={{
-                        fontSize: isDesktop ? '2.25rem' : '1.8rem',
-                        color: 'white',
-                        fontFamily: 'var(--font-serif)',
-                        marginTop: '1.5rem',
-                        marginBottom: '0.75rem'
-                    }}>
-                        Ready to Begin?
-                    </h2>
-                    <p style={{
-                        color: 'rgba(255,255,255,0.9)',
-                        marginBottom: '2rem',
-                        fontSize: isDesktop ? '1.15rem' : '1rem'
-                    }}>
-                        Be the first to join our private space — launching soon
-                    </p>
-                    <motion.button
-                        onClick={() => setIsWaitlistOpen(true)}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        style={{
-                            background: 'white',
-                            border: 'none',
-                            borderRadius: '16px',
-                            padding: isDesktop ? '18px 48px' : '16px 40px',
-                            color: '#FF9B9B',
-                            fontSize: isDesktop ? '1.15rem' : '1.1rem',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '10px'
-                        }}
-                    >
-                        Join Soon
-                        <ArrowRight size={20} />
-                    </motion.button>
-                </motion.div>
-            </motion.section>
-
-            {/* Footer */}
-            <motion.footer
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                style={{
-                    textAlign: 'center',
-                    padding: isDesktop ? '3rem' : '2rem',
-                    color: '#7A6A6A',
-                    fontSize: '0.9rem'
-                }}
-            >
-                <p>Made with 💕 for couples everywhere</p>
-                <p style={{ marginTop: '0.5rem', fontSize: '0.85rem', opacity: 0.7 }}>© 2026 VibeAura. All rights reserved.</p>
-            </motion.footer>
-
-            </div>
+            </motion.div>
 
             {/* Waitlist Modal */}
             <WaitlistModal
@@ -1260,7 +1262,7 @@ function LandingPage() {
                 onClose={() => setIsWaitlistOpen(false)}
                 isDesktop={isDesktop}
             />
-        </motion.div>
+        </>
     )
 }
 
