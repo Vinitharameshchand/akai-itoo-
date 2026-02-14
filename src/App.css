@@ -5,6 +5,9 @@
   padding-bottom: 100px;
   position: relative;
   background: transparent;
+  /* Performance optimizations */
+  contain: layout style paint;
+  will-change: scroll-position;
 }
 
 .section {
