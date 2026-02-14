@@ -1,6 +1,6 @@
 import { useState, useEffect, memo, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Heart, Handshake, Disc, ArrowRight, Sparkles, MessageCircle, Star, Moon, Play, Shield, Zap, Camera, Music, Gift, Check, X } from 'lucide-react'
+import { Heart, Handshake, Disc, ArrowRight, Sparkles, MessageCircle, Star, Moon, Play, Shield, Zap, Camera, Music, Gift, Check, X, Film } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { sendWaitlistEmail } from '../lib/email'
@@ -361,28 +361,57 @@ const FeatureCard = memo(({ icon: Icon, title, description, delay, gradient, isD
     const cardRef = useRef(null);
     useTiltEffect(cardRef);
 
+    // Unique icon animations for main features
+    const iconMotion = useMemo(() => {
+        const variants = {
+            'Vibe Pulse': {
+                animate: { scale: [1, 1.15, 1], opacity: [0.9, 1, 0.9] },
+                transition: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+            },
+            'Memory Wall': {
+                animate: { y: [0, -5, 0], rotate: [0, 2, -2, 0] },
+                transition: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+            },
+            'Vibe Cinema': {
+                animate: { rotate: [0, 10, -10, 0] },
+                transition: { duration: 5, repeat: Infinity, ease: "easeInOut" }
+            },
+            'Time Capsule': {
+                animate: { scale: [1, 1.1, 1], rotate: [0, 3, -3, 0] },
+                transition: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+            }
+        };
+        return variants[title] || {
+            animate: { y: [0, -2, 0] },
+            transition: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+        };
+    }, [title]);
+
     return (
         <motion.div
             ref={cardRef}
             className="feature-card-gsap"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '0px 0px -100px 0px' }}
-            transition={{ delay, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            whileHover={{ y: -12, scale: 1.02 }}
+            whileHover={{
+                y: -15,
+                scale: 1.02,
+                boxShadow: '0 25px 50px rgba(255, 155, 155, 0.15)',
+                borderColor: 'rgba(255, 255, 255, 1)'
+            }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             style={{
-                background: 'rgba(255, 255, 255, 0.65)',
+                background: 'rgba(255, 255, 255, 0.7)',
                 backdropFilter: 'blur(30px)',
                 WebkitBackdropFilter: 'blur(30px)',
                 borderRadius: '32px',
-                padding: isDesktop ? '2.5rem 2rem' : '2rem 1.75rem',
-                border: '1px solid rgba(255, 255, 255, 0.8)',
+                padding: isDesktop ? '3rem 2.5rem' : '2rem 1.75rem',
+                border: '1px solid rgba(255, 255, 255, 0.9)',
                 cursor: 'pointer',
-                transition: 'box-shadow 0.3s ease',
                 willChange: 'transform',
                 boxShadow: '0 10px 30px rgba(0,0,0,0.03)',
                 transformStyle: 'preserve-3d',
-                height: '100%'
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column'
             }}
         >
             <motion.div
@@ -396,25 +425,48 @@ const FeatureCard = memo(({ icon: Icon, title, description, delay, gradient, isD
                     justifyContent: 'center',
                     marginBottom: '1.5rem',
                     boxShadow: '0 12px 24px rgba(255, 155, 155, 0.35)',
-                    transform: 'translateZ(40px)'
+                    transform: 'translateZ(50px)',
+                    position: 'relative'
                 }}
-                whileHover={{ scale: 1.1, rotate: 5 }}
+                whileHover={{ scale: 1.15, rotate: 10 }}
             >
-                <Icon size={isDesktop ? 30 : 26} color="white" />
+                <motion.div
+                    animate={iconMotion.animate}
+                    transition={iconMotion.transition}
+                >
+                    <Icon size={isDesktop ? 30 : 26} color="white" />
+                </motion.div>
+
+                {/* Glow layer */}
+                <motion.div
+                    style={{
+                        position: 'absolute',
+                        inset: -8,
+                        background: gradient || 'linear-gradient(135deg, #FF9B9B, #FFB4B4)',
+                        filter: 'blur(12px)',
+                        opacity: 0.3,
+                        borderRadius: '50%',
+                        zIndex: -1
+                    }}
+                    animate={{ opacity: [0.2, 0.4, 0.2], scale: [1, 1.2, 1] }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                />
             </motion.div>
             <h3 style={{
-                fontSize: isDesktop ? '1.45rem' : '1.2rem',
-                fontWeight: 600,
+                fontSize: isDesktop ? '1.5rem' : '1.3rem',
+                fontWeight: 700,
                 marginBottom: '0.75rem',
                 color: '#4A3A3A',
                 transform: 'translateZ(30px)',
-                letterSpacing: '-0.01em'
+                letterSpacing: '-0.02em',
+                lineHeight: 1.2
             }}>{title}</h3>
             <p style={{
                 fontSize: isDesktop ? '1.05rem' : '0.95rem',
                 color: '#7A6A6A',
                 lineHeight: 1.6,
-                transform: 'translateZ(20px)'
+                transform: 'translateZ(20px)',
+                opacity: 0.9
             }}>{description}</p>
         </motion.div>
     );
@@ -785,15 +837,15 @@ function LandingPage() {
                     gsap.from(card, {
                         scrollTrigger: {
                             trigger: card,
-                            start: 'top 85%',
-                            end: 'top 20%',
+                            start: 'top 90%',
                             toggleActions: 'play none none reverse'
                         },
-                        y: 80,
+                        y: 40,
+                        scale: 0.96,
                         opacity: 0,
-                        duration: 1,
-                        ease: 'power3.out',
-                        delay: i * 0.1
+                        duration: 1.2,
+                        ease: 'expo.out',
+                        delay: (i % 4) * 0.1
                     });
 
                     // Parallax effect on scroll
@@ -804,7 +856,7 @@ function LandingPage() {
                             end: 'bottom top',
                             scrub: 1
                         },
-                        y: -30
+                        y: (i % 2 === 0) ? -25 : 25
                     });
                 });
             }
@@ -1090,7 +1142,7 @@ function LandingPage() {
                                 isDesktop={isDesktop}
                             />
                             <FeatureCard
-                                icon={Music}
+                                icon={Film}
                                 title="Vibe Cinema"
                                 description="Watch & listen together, anywhere"
                                 delay={0.3}
@@ -1402,8 +1454,9 @@ function LandingPage() {
                             fontSize: '0.9rem'
                         }}
                     >
-                        <p>Made with 💕 for couples everywhere</p>
-                        <p style={{ marginTop: '0.5rem', fontSize: '0.85rem', opacity: 0.7 }}>© 2026 VibeAura. All rights reserved.</p>
+                        <p>Made with 💕 for couples everywhere <br>
+                        </br>~ neurvinch </p>
+                        <p style={{ marginTop: '0.5rem', fontSize: '0.85rem', opacity: 0.7 }}>© 2026 akai itoo. All rights reserved.</p>
                     </motion.footer>
 
                 </div>
