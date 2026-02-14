@@ -75,60 +75,112 @@ const useMagneticEffect = (ref) => {
         };
     }, [ref]);
 };
+// 3D Tilt effect hook
+const useTiltEffect = (ref) => {
+    useEffect(() => {
+        const element = ref.current;
+        if (!element) return;
 
+        const handleMouseMove = (e) => {
+            const rect = element.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+
+            const rotateX = (y - centerY) / 10;
+            const rotateY = (centerX - x) / 10;
+
+            gsap.to(element, {
+                rotateX: rotateX,
+                rotateY: rotateY,
+                duration: 0.5,
+                ease: 'power2.out',
+                transformPerspective: 1000
+            });
+        };
+
+        const handleMouseLeave = () => {
+            gsap.to(element, {
+                rotateX: 0,
+                rotateY: 0,
+                duration: 0.5,
+                ease: 'power2.out'
+            });
+        };
+
+        element.addEventListener('mousemove', handleMouseMove);
+        element.addEventListener('mouseleave', handleMouseLeave);
+
+        return () => {
+            element.removeEventListener('mousemove', handleMouseMove);
+            element.removeEventListener('mouseleave', handleMouseLeave);
+        };
+    }, [ref]);
+};
 // Animated background gradient orbs
 const GradientOrbs = memo(({ isDesktop }) => (
     <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0 }}>
+        {/* Soft pink orb */}
+        <motion.div
+            style={{
+                position: 'absolute',
+                width: isDesktop ? '700px' : '500px',
+                height: isDesktop ? '700px' : '500px',
+                borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(255,155,155,0.3) 0%, transparent 70%)',
+                top: '-20%',
+                right: isDesktop ? '5%' : '-150px',
+                filter: 'blur(80px)'
+            }}
+            animate={{
+                scale: [1, 1.15, 0.9, 1],
+                x: [0, 40, -30, 0],
+                y: [0, -30, 50, 0],
+                rotate: [0, 90, 180, 360]
+            }}
+            transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+        />
+        {/* Peach orb */}
         <motion.div
             style={{
                 position: 'absolute',
                 width: isDesktop ? '600px' : '400px',
                 height: isDesktop ? '600px' : '400px',
                 borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(255,155,155,0.25) 0%, transparent 70%)',
-                top: '-100px',
-                right: isDesktop ? '10%' : '-100px',
-                filter: 'blur(60px)'
+                background: 'radial-gradient(circle, rgba(255,180,140,0.25) 0%, transparent 70%)',
+                bottom: '10%',
+                left: isDesktop ? '2%' : '-100px',
+                filter: 'blur(80px)'
             }}
             animate={{
-                scale: [1, 1.2, 1],
-                x: [0, 30, 0],
-                y: [0, 20, 0]
+                scale: [1, 1.25, 1],
+                x: [0, -60, 40, 0],
+                y: [0, 80, -40, 0],
+                rotate: [0, -120, -240, -360]
             }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+            transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
         />
-        <motion.div
-            style={{
-                position: 'absolute',
-                width: isDesktop ? '500px' : '300px',
-                height: isDesktop ? '500px' : '300px',
-                borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(255,180,180,0.2) 0%, transparent 70%)',
-                bottom: '20%',
-                left: isDesktop ? '5%' : '-50px',
-                filter: 'blur(60px)'
-            }}
-            animate={{
-                scale: [1, 1.3, 1],
-                x: [0, -20, 0],
-                y: [0, 30, 0]
-            }}
-            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-        />
+        {/* Soft violet/lavender orb for desktop */}
         {isDesktop && (
             <motion.div
                 style={{
                     position: 'absolute',
-                    width: '400px',
-                    height: '400px',
+                    width: '550px',
+                    height: '550px',
                     borderRadius: '50%',
-                    background: 'radial-gradient(circle, rgba(255,200,200,0.15) 0%, transparent 70%)',
-                    top: '40%',
-                    left: '50%',
-                    filter: 'blur(60px)'
+                    background: 'radial-gradient(circle, rgba(200,180,255,0.2) 0%, transparent 70%)',
+                    top: '30%',
+                    left: '40%',
+                    filter: 'blur(100px)'
                 }}
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+                animate={{
+                    scale: [1, 1.1, 1.2, 1],
+                    x: [-20, 30, -10, -20],
+                    y: [40, -20, 30, 40]
+                }}
+                transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
             />
         )}
     </div>
@@ -137,20 +189,20 @@ const GradientOrbs = memo(({ isDesktop }) => (
 // Floating elements
 const FloatingElements = memo(({ isDesktop }) => {
     const elements = useMemo(() => isDesktop ? [
-        { icon: '💕', size: 28, x: 5, delay: 0 },
-        { icon: '✨', size: 24, x: 15, delay: 2 },
-        { icon: '🌙', size: 26, x: 25, delay: 4 },
-        { icon: '💫', size: 22, x: 40, delay: 1 },
-        { icon: '🌸', size: 24, x: 60, delay: 3 },
-        { icon: '💕', size: 26, x: 75, delay: 5 },
-        { icon: '✨', size: 22, x: 85, delay: 2.5 },
-        { icon: '🌙', size: 28, x: 95, delay: 1.5 },
+        { icon: '💕', size: 28, x: 5, delay: 0, duration: 18 },
+        { icon: '✨', size: 24, x: 15, delay: 2, duration: 22 },
+        { icon: '🌙', size: 26, x: 25, delay: 4, duration: 20 },
+        { icon: '💫', size: 22, x: 40, delay: 1, duration: 25 },
+        { icon: '🌸', size: 24, x: 60, delay: 3, duration: 19 },
+        { icon: '💕', size: 26, x: 75, delay: 5, duration: 21 },
+        { icon: '✨', size: 22, x: 85, delay: 2.5, duration: 23 },
+        { icon: '🌙', size: 28, x: 95, delay: 1.5, duration: 24 },
     ] : [
-        { icon: '💕', size: 24, x: 10, delay: 0 },
-        { icon: '✨', size: 20, x: 85, delay: 2 },
-        { icon: '🌙', size: 22, x: 50, delay: 4 },
-        { icon: '💫', size: 18, x: 30, delay: 1 },
-        { icon: '🌸', size: 20, x: 70, delay: 3 },
+        { icon: '💕', size: 24, x: 10, delay: 0, duration: 15 },
+        { icon: '✨', size: 20, x: 85, delay: 2, duration: 18 },
+        { icon: '🌙', size: 22, x: 50, delay: 4, duration: 20 },
+        { icon: '💫', size: 18, x: 30, delay: 1, duration: 22 },
+        { icon: '🌸', size: 20, x: 70, delay: 3, duration: 17 },
     ], [isDesktop]);
 
     return (
@@ -158,10 +210,22 @@ const FloatingElements = memo(({ isDesktop }) => {
             {elements.map((el, i) => (
                 <motion.div
                     key={i}
-                    initial={{ y: '110vh', x: `${el.x}vw`, opacity: 0 }}
-                    animate={{ y: '-10vh', opacity: [0, 1, 1, 0] }}
-                    transition={{ duration: 15, repeat: Infinity, delay: el.delay, ease: 'linear' }}
-                    style={{ position: 'absolute', fontSize: el.size }}
+                    initial={{ y: '110vh', x: `${el.x}vw`, opacity: 0, rotate: 0 }}
+                    animate={{
+                        y: '-10vh',
+                        opacity: [0, 1, 1, 0],
+                        x: [`${el.x}vw`, `${el.x + 5}vw`, `${el.x - 5}vw`, `${el.x}vw`],
+                        rotate: [0, 15, -15, 0]
+                    }}
+                    transition={{
+                        duration: el.duration,
+                        repeat: Infinity,
+                        delay: el.delay,
+                        ease: 'linear',
+                        x: { duration: el.duration / 3, repeat: Infinity, ease: 'easeInOut' },
+                        rotate: { duration: el.duration / 4, repeat: Infinity, ease: 'easeInOut' }
+                    }}
+                    style={{ position: 'absolute', fontSize: el.size, filter: 'drop-shadow(0 5px 15px rgba(255,155,155,0.2))' }}
                 >
                     {el.icon}
                 </motion.div>
@@ -227,17 +291,30 @@ const ImageCarousel = memo(({ isDesktop }) => {
                 border: '4px solid rgba(255, 255, 255, 0.6)'
             }}>
                 <AnimatePresence mode="wait">
-                    <motion.img
+                    <motion.div
                         key={current}
-                        src={images[current]}
-                        alt="Romantic moment"
-                        loading="lazy"
-                        initial={{ opacity: 0, scale: 1.1 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        transition={{ duration: 0.8 }}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
+                        initial={{ opacity: 0, scale: 1.2 }}
+                        animate={{ opacity: 1, scale: 1.05 }}
+                        exit={{ opacity: 0, scale: 1 }}
+                        transition={{ duration: 1.5, ease: 'easeOut' }}
+                        style={{ width: '100%', height: '100%' }}
+                    >
+                        <motion.img
+                            src={images[current]}
+                            alt="Romantic moment"
+                            loading="lazy"
+                            animate={{
+                                x: [0, -20, 0, 20, 0],
+                                y: [0, 10, -10, 0]
+                            }}
+                            transition={{
+                                duration: 20,
+                                repeat: Infinity,
+                                ease: 'linear'
+                            }}
+                            style={{ width: '110%', height: '110%', objectFit: 'cover', marginLeft: '-5%', marginTop: '-5%' }}
+                        />
+                    </motion.div>
                 </AnimatePresence>
 
                 <div style={{
@@ -280,88 +357,120 @@ const ImageCarousel = memo(({ isDesktop }) => {
 });
 
 // Feature card with icon
-const FeatureCard = memo(({ icon: Icon, title, description, delay, gradient, isDesktop }) => (
-    <motion.div
-        className="feature-card-gsap"
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '0px 0px -100px 0px' }}
-        transition={{ delay, duration: 0.6 }}
-        whileHover={{ y: -8, boxShadow: '0 20px 40px rgba(255, 155, 155, 0.2)' }}
-        style={{
-            background: 'rgba(255, 255, 255, 0.7)',
-            backdropFilter: 'blur(20px)',
-            borderRadius: '24px',
-            padding: isDesktop ? '2rem' : '1.75rem',
-            border: '1px solid rgba(255, 255, 255, 0.8)',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            willChange: 'transform'
-        }}
-    >
+const FeatureCard = memo(({ icon: Icon, title, description, delay, gradient, isDesktop }) => {
+    const cardRef = useRef(null);
+    useTiltEffect(cardRef);
+
+    return (
         <motion.div
+            ref={cardRef}
+            className="feature-card-gsap"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '0px 0px -100px 0px' }}
+            transition={{ delay, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            whileHover={{ y: -12, scale: 1.02 }}
             style={{
-                width: isDesktop ? '64px' : '56px',
-                height: isDesktop ? '64px' : '56px',
-                borderRadius: '16px',
-                background: gradient || 'linear-gradient(135deg, #FF9B9B, #FFB4B4)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '1rem',
-                boxShadow: '0 8px 20px rgba(255, 155, 155, 0.3)',
-                willChange: 'transform'
+                background: 'rgba(255, 255, 255, 0.65)',
+                backdropFilter: 'blur(30px)',
+                WebkitBackdropFilter: 'blur(30px)',
+                borderRadius: '32px',
+                padding: isDesktop ? '2.5rem 2rem' : '2rem 1.75rem',
+                border: '1px solid rgba(255, 255, 255, 0.8)',
+                cursor: 'pointer',
+                transition: 'box-shadow 0.3s ease',
+                willChange: 'transform',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.03)',
+                transformStyle: 'preserve-3d',
+                height: '100%'
             }}
-            whileHover={{ scale: 1.1 }}
-            transition={{ duration: 0.3 }}
         >
-            <Icon size={isDesktop ? 30 : 26} color="white" />
+            <motion.div
+                style={{
+                    width: isDesktop ? '64px' : '56px',
+                    height: isDesktop ? '64px' : '56px',
+                    borderRadius: '20px',
+                    background: gradient || 'linear-gradient(135deg, #FF9B9B, #FFB4B4)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '1.5rem',
+                    boxShadow: '0 12px 24px rgba(255, 155, 155, 0.35)',
+                    transform: 'translateZ(40px)'
+                }}
+                whileHover={{ scale: 1.1, rotate: 5 }}
+            >
+                <Icon size={isDesktop ? 30 : 26} color="white" />
+            </motion.div>
+            <h3 style={{
+                fontSize: isDesktop ? '1.45rem' : '1.2rem',
+                fontWeight: 600,
+                marginBottom: '0.75rem',
+                color: '#4A3A3A',
+                transform: 'translateZ(30px)',
+                letterSpacing: '-0.01em'
+            }}>{title}</h3>
+            <p style={{
+                fontSize: isDesktop ? '1.05rem' : '0.95rem',
+                color: '#7A6A6A',
+                lineHeight: 1.6,
+                transform: 'translateZ(20px)'
+            }}>{description}</p>
         </motion.div>
-        <h3 style={{ fontSize: isDesktop ? '1.25rem' : '1.15rem', fontWeight: 600, marginBottom: '0.5rem', color: '#4A3A3A' }}>{title}</h3>
-        <p style={{ fontSize: isDesktop ? '1rem' : '0.9rem', color: '#7A6A6A', lineHeight: 1.5 }}>{description}</p>
-    </motion.div>
-));
+    );
+});
 
 // Pricing/Benefit card for desktop
-const BenefitCard = memo(({ icon: Icon, title, items }) => (
-    <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        whileHover={{ y: -5 }}
-        style={{
-            background: 'rgba(255, 255, 255, 0.6)',
-            backdropFilter: 'blur(20px)',
-            borderRadius: '24px',
-            padding: '2rem',
-            border: '1px solid rgba(255, 255, 255, 0.8)',
-            flex: 1
-        }}
-    >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.5rem' }}>
-            <div style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, #FF9B9B, #FF7B7B)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-            }}>
-                <Icon size={24} color="white" />
+const BenefitCard = memo(({ icon: Icon, title, items }) => {
+    const cardRef = useRef(null);
+    useTiltEffect(cardRef);
+
+    return (
+        <motion.div
+            ref={cardRef}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            whileHover={{ y: -10, scale: 1.02 }}
+            style={{
+                background: 'rgba(255, 255, 255, 0.65)',
+                backdropFilter: 'blur(30px)',
+                WebkitBackdropFilter: 'blur(30px)',
+                borderRadius: '32px',
+                padding: '2.5rem 2rem',
+                border: '1px solid rgba(255, 255, 255, 0.8)',
+                flex: 1,
+                boxShadow: '0 15px 35px rgba(255, 155, 155, 0.05)',
+                transformStyle: 'preserve-3d',
+                cursor: 'pointer'
+            }}
+        >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '2rem', transform: 'translateZ(40px)' }}>
+                <div style={{
+                    width: '56px',
+                    height: '56px',
+                    borderRadius: '16px',
+                    background: 'linear-gradient(135deg, #FF9B9B, #FF7B7B)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 8px 16px rgba(255, 155, 155, 0.3)'
+                }}>
+                    <Icon size={28} color="white" />
+                </div>
+                <h3 style={{ fontSize: '1.4rem', fontWeight: 600, color: '#4A3A3A' }}>{title}</h3>
             </div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: '#4A3A3A' }}>{title}</h3>
-        </div>
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {items.map((item, i) => (
-                <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '0.75rem', color: '#5A4A4A' }}>
-                    <Check size={18} color="#FF9B9B" />
-                    <span>{item}</span>
-                </li>
-            ))}
-        </ul>
-    </motion.div>
-));
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, transform: 'translateZ(20px)' }}>
+                {items.map((item, i) => (
+                    <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1rem', color: '#5A4A4A', fontSize: '1.05rem' }}>
+                        <Check size={20} color="#FF9B9B" />
+                        <span>{item}</span>
+                    </li>
+                ))}
+            </ul>
+        </motion.div>
+    );
+});
 
 const WaitlistModal = memo(({ isOpen, onClose, isDesktop }) => {
     const [formData, setFormData] = useState({ name: '', email: '' });
@@ -607,37 +716,42 @@ function LandingPage() {
     // GSAP Hero entrance animation
     useEffect(() => {
         const ctx = gsap.context(() => {
-            // Hero title animation with split effect
+            // Hero title reveal with skew
             const titleLines = titleRef.current?.querySelectorAll('span');
             if (titleLines) {
                 gsap.from(titleLines, {
-                    duration: 1.2,
-                    y: 100,
+                    duration: 1.5,
+                    y: 120,
+                    skewY: 7,
                     opacity: 0,
-                    stagger: 0.2,
+                    stagger: 0.25,
                     ease: 'power4.out',
-                    delay: 0.3
+                    delay: 0.2
                 });
             }
 
-            // Subtitle fade in
+            // Subtitle fade in with slight push
             gsap.from(subtitleRef.current, {
-                duration: 1,
-                y: 50,
+                duration: 1.2,
+                y: 30,
                 opacity: 0,
                 ease: 'power3.out',
-                delay: 0.8
+                delay: 0.9
             });
 
-            // CTA buttons pop in
-            gsap.from(ctaRef.current?.children || [], {
-                duration: 0.8,
-                scale: 0.8,
-                opacity: 0,
-                stagger: 0.15,
-                ease: 'back.out(1.7)',
-                delay: 1.2
-            });
+            // CTA buttons scale and rotate
+            const buttons = ctaRef.current?.children;
+            if (buttons) {
+                gsap.from(buttons, {
+                    duration: 1,
+                    scale: 0.85,
+                    y: 20,
+                    opacity: 0,
+                    stagger: 0.15,
+                    ease: 'back.out(1.4)',
+                    delay: 1.3
+                });
+            }
         }, heroRef);
 
         return () => ctx.revert();
