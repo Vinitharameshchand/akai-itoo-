@@ -373,7 +373,7 @@ const WaitlistModal = memo(({ isOpen, onClose, isDesktop }) => {
         setStatus({ type: '', message: '' });
 
         try {
-            const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/waitlist`, formData);
+            const response = await axios.post('https://akai-itoo.onrender.com/api/waitlist', formData);
             if (response.data.success) {
                 setStatus({ type: 'success', message: 'You have been added to the waitlist! 💕' });
                 setTimeout(() => {
