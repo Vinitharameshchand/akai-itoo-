@@ -17,7 +17,8 @@ export const sendWaitlistEmail = async (userData) => {
             {
                 to_name: userData.name,
                 to_email: userData.email,
-                reply_to: 'no-reply@vibeaura.com', // Customize as needed
+                user_phone: userData.phone,
+                reply_to: 'neurvinch@gmail.com', 
             },
             publicKey
         )
