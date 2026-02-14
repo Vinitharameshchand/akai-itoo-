@@ -364,7 +364,7 @@ const BenefitCard = memo(({ icon: Icon, title, items }) => (
 ));
 
 const WaitlistModal = memo(({ isOpen, onClose, isDesktop }) => {
-    const [formData, setFormData] = useState({ name: '', email: '' });
+    const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
     const [status, setStatus] = useState({ type: '', message: '' });
     const [loading, setLoading] = useState(false);
 
@@ -380,6 +380,7 @@ const WaitlistModal = memo(({ isOpen, onClose, isDesktop }) => {
                 .insert([{
                     name: formData.name,
                     email: formData.email,
+                    phone: formData.phone,
                     timestamp: new Date().toISOString()
                 }]);
 
@@ -396,7 +397,7 @@ const WaitlistModal = memo(({ isOpen, onClose, isDesktop }) => {
             setStatus({ type: 'success', message: 'You have been added to the waitlist! 💕' });
             setTimeout(() => {
                 onClose();
-                setFormData({ name: '', email: '' });
+                setFormData({ name: '', email: '', phone: '' });
                 setStatus({ type: '', message: '' });
             }, 1500);
         } catch (error) {
@@ -509,6 +510,24 @@ const WaitlistModal = memo(({ isOpen, onClose, isDesktop }) => {
                                     placeholder="Enter your email"
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                    style={{
+                                        padding: '1rem 1.25rem',
+                                        borderRadius: '16px',
+                                        border: '1.5px solid #EEE',
+                                        outline: 'none',
+                                        fontSize: '1rem',
+                                        transition: 'all 0.3s ease'
+                                    }}
+                                />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <label style={{ fontSize: '0.9rem', color: '#4A3A3A', fontWeight: 500, marginLeft: '4px' }}>Phone Number</label>
+                                <input
+                                    required
+                                    type="tel"
+                                    placeholder="Enter your phone number"
+                                    value={formData.phone}
+                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                     style={{
                                         padding: '1rem 1.25rem',
                                         borderRadius: '16px',
