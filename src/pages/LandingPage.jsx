@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Heart, Handshake, Disc, ArrowRight, Sparkles, MessageCircle, Star, Moon, Play, Shield, Zap, Camera, Music, Gift, Check, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -13,19 +13,28 @@ const trainImg = '/assets/backgrounds/train.jpg';
 const movieImg = '/assets/backgrounds/movie.jpg';
 const gameImg = '/assets/backgrounds/game.jpeg';
 
-// Responsive hook
+// Responsive hook with debounce for performance
 const useWindowSize = () => {
     const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight });
     useEffect(() => {
-        const handleResize = () => setSize({ width: window.innerWidth, height: window.innerHeight });
+        let timeoutId;
+        const handleResize = () => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                setSize({ width: window.innerWidth, height: window.innerHeight });
+            }, 150);
+        };
         window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+        return () => {
+            clearTimeout(timeoutId);
+            window.removeEventListener('resize', handleResize);
+        };
     }, []);
     return size;
 };
 
 // Animated background gradient orbs
-const GradientOrbs = ({ isDesktop }) => (
+const GradientOrbs = memo(({ isDesktop }) => (
     <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0 }}>
         <motion.div
             style={{
@@ -80,11 +89,11 @@ const GradientOrbs = ({ isDesktop }) => (
             />
         )}
     </div>
-);
+));
 
 // Floating elements
-const FloatingElements = ({ isDesktop }) => {
-    const elements = isDesktop ? [
+const FloatingElements = memo(({ isDesktop }) => {
+    const elements = useMemo(() => isDesktop ? [
         { icon: '💕', size: 28, x: 5, delay: 0 },
         { icon: '✨', size: 24, x: 15, delay: 2 },
         { icon: '🌙', size: 26, x: 25, delay: 4 },
@@ -99,7 +108,7 @@ const FloatingElements = ({ isDesktop }) => {
         { icon: '🌙', size: 22, x: 50, delay: 4 },
         { icon: '💫', size: 18, x: 30, delay: 1 },
         { icon: '🌸', size: 20, x: 70, delay: 3 },
-    ];
+    ], [isDesktop]);
 
     return (
         <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 1 }}>
@@ -116,11 +125,11 @@ const FloatingElements = ({ isDesktop }) => {
             ))}
         </div>
     );
-};
+});
 
 // Hero image carousel
-const ImageCarousel = ({ isDesktop }) => {
-    const images = [heroImg, dinnerImg, noodlesImg, trainImg];
+const ImageCarousel = memo(({ isDesktop }) => {
+    const images = useMemo(() => [heroImg, dinnerImg, noodlesImg, trainImg], []);
     const [current, setCurrent] = useState(0);
 
     useEffect(() => {
@@ -128,7 +137,7 @@ const ImageCarousel = ({ isDesktop }) => {
             setCurrent((prev) => (prev + 1) % images.length);
         }, 4000);
         return () => clearInterval(timer);
-    }, []);
+    }, [images]);
 
     return (
         <div style={{
@@ -144,10 +153,11 @@ const ImageCarousel = ({ isDesktop }) => {
                     inset: '-15px',
                     border: '2px solid rgba(255, 155, 155, 0.3)',
                     borderRadius: '40px',
-                    zIndex: 0
+                    zIndex: 0,
+                    willChange: 'transform'
                 }}
-                animate={{ rotate: [0, 2, 0, -2, 0] }}
-                transition={{ duration: 8, repeat: Infinity }}
+                animate={{ rotate: [0, 1, 0, -1, 0] }}
+                transition={{ duration: 10, repeat: Infinity }}
             />
 
             {/* Glow effect */}
@@ -178,6 +188,7 @@ const ImageCarousel = ({ isDesktop }) => {
                         key={current}
                         src={images[current]}
                         alt="Romantic moment"
+                        loading="lazy"
                         initial={{ opacity: 0, scale: 1.1 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
@@ -223,14 +234,14 @@ const ImageCarousel = ({ isDesktop }) => {
             </div>
         </div>
     );
-};
+});
 
 // Feature card with icon
-const FeatureCard = ({ icon: Icon, title, description, delay, gradient, isDesktop }) => (
+const FeatureCard = memo(({ icon: Icon, title, description, delay, gradient, isDesktop }) => (
     <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
+        viewport={{ once: true, margin: '0px 0px -100px 0px' }}
         transition={{ delay, duration: 0.6 }}
         whileHover={{ y: -8, boxShadow: '0 20px 40px rgba(255, 155, 155, 0.2)' }}
         style={{
@@ -240,7 +251,8 @@ const FeatureCard = ({ icon: Icon, title, description, delay, gradient, isDeskto
             padding: isDesktop ? '2rem' : '1.75rem',
             border: '1px solid rgba(255, 255, 255, 0.8)',
             cursor: 'pointer',
-            transition: 'all 0.3s ease'
+            transition: 'all 0.3s ease',
+            willChange: 'transform'
         }}
     >
         <motion.div
@@ -253,20 +265,21 @@ const FeatureCard = ({ icon: Icon, title, description, delay, gradient, isDeskto
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginBottom: '1rem',
-                boxShadow: '0 8px 20px rgba(255, 155, 155, 0.3)'
+                boxShadow: '0 8px 20px rgba(255, 155, 155, 0.3)',
+                willChange: 'transform'
             }}
-            whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
-            transition={{ duration: 0.5 }}
+            whileHover={{ scale: 1.1 }}
+            transition={{ duration: 0.3 }}
         >
             <Icon size={isDesktop ? 30 : 26} color="white" />
         </motion.div>
         <h3 style={{ fontSize: isDesktop ? '1.25rem' : '1.15rem', fontWeight: 600, marginBottom: '0.5rem', color: '#4A3A3A' }}>{title}</h3>
         <p style={{ fontSize: isDesktop ? '1rem' : '0.9rem', color: '#7A6A6A', lineHeight: 1.5 }}>{description}</p>
     </motion.div>
-);
+));
 
 // Pricing/Benefit card for desktop
-const BenefitCard = ({ icon: Icon, title, items }) => (
+const BenefitCard = memo(({ icon: Icon, title, items }) => (
     <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -304,9 +317,9 @@ const BenefitCard = ({ icon: Icon, title, items }) => (
             ))}
         </ul>
     </motion.div>
-);
+));
 
-const WaitlistModal = ({ isOpen, onClose, isDesktop }) => {
+const WaitlistModal = memo(({ isOpen, onClose, isDesktop }) => {
     const [formData, setFormData] = useState({ name: '', email: '' });
     const [status, setStatus] = useState({ type: '', message: '' });
     const [loading, setLoading] = useState(false);
@@ -496,7 +509,7 @@ const WaitlistModal = ({ isOpen, onClose, isDesktop }) => {
             )}
         </AnimatePresence>
     );
-};
+});
 
 function LandingPage() {
     const navigate = useNavigate();
@@ -504,6 +517,15 @@ function LandingPage() {
     const isDesktop = width >= 768;
     const isLargeDesktop = width >= 1200;
     const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
+
+    // Preload critical images for faster carousel experience
+    useEffect(() => {
+        const imagesToPreload = [heroImg, dinnerImg, noodlesImg, trainImg];
+        imagesToPreload.forEach((src) => {
+            const img = new Image();
+            img.src = src;
+        });
+    }, []);
 
     return (
         <motion.div
@@ -914,6 +936,7 @@ function LandingPage() {
                             <img
                                 src={item.img}
                                 alt={item.label}
+                                loading="lazy"
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             />
                             <div style={{
