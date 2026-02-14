@@ -15,8 +15,11 @@ const DATA_FILE = path.join(__dirname, 'data', 'waitlist.json');
 
 dotenv.config();
 
-app.use(cors());
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+app.use(cors({ origin: FRONTEND_URL }));
 app.use(express.json());
+
+
 
 // Create nodemailer transporter (fallback to ethereal test account when no SMTP config)
 let transporter;
