@@ -42,12 +42,21 @@
   padding: 0;
 }
 
+/* Performance optimizations */
+img {
+  content-visibility: auto;
+}
+
 body {
   font-family: var(--font-sans);
   background-image: var(--bg-gradient), url('/assets/backgrounds/main-bg.png');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
+  /* GPU acceleration for smoother scrolling */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
