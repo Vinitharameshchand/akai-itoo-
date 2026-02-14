@@ -1,8 +1,15 @@
 [
   {
+<<<<<<< HEAD
     "name": "Naveen",
     "email": "npandian515@gmail.com",
     "role": "user",
     "timestamp": "2026-02-14T04:43:02.062Z"
+=======
+    "name": "vinitha",
+    "email": "vinitharameshchand@gmail.com",
+    "role": "user",
+    "timestamp": "2026-02-13T18:31:00.420Z"
+>>>>>>> 69381dd (readmeandwautjson)
   }
 ]
