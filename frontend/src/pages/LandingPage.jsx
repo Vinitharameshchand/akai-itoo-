@@ -380,7 +380,7 @@ const WaitlistModal = memo(({ isOpen, onClose, isDesktop }) => {
                     onClose();
                     setFormData({ name: '', email: '' });
                     setStatus({ type: '', message: '' });
-                }, 3000);
+                }, 1500); // Faster feedback loop (1.5s instead of 3s)
             }
         } catch (error) {
             setStatus({
@@ -540,10 +540,13 @@ const WaitlistModal = memo(({ isOpen, onClose, isDesktop }) => {
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    gap: '10px'
+                                    gap: '10px',
+                                    opacity: loading ? 0.8 : 1
                                 }}
+                                animate={loading ? { scale: [1, 1.02, 1] } : {}}
+                                transition={loading ? { duration: 1, repeat: Infinity } : { duration: 0.3 }}
                             >
-                                {loading ? 'Joining...' : 'Get Early Access'}
+                                {loading ? 'Joining the Waitlist...' : 'Get Early Access'}
                                 {!loading && <ArrowRight size={20} />}
                             </motion.button>
                         </form>
@@ -575,8 +578,17 @@ function LandingPage() {
     useMagneticEffect(primaryButtonRef);
     useMagneticEffect(secondaryButtonRef);
 
-    // Preload critical images for faster carousel experience
+    // Wake up the backend (Render cold start) on mount
     useEffect(() => {
+        const wakeupBackend = async () => {
+            try {
+                // Hardcoded fallback for reliability as per user's last change
+                const baseUrl = import.meta.env.VITE_BACKEND_URL || 'https://akai-itoo.onrender.com';
+                await axios.get(`${baseUrl}/api/waitlist`).catch(() => { });
+            } catch (e) { }
+        };
+        wakeupBackend();
+
         const imagesToPreload = [heroImg, dinnerImg, noodlesImg, trainImg];
         imagesToPreload.forEach((src) => {
             const img = new Image();
